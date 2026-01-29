@@ -1,0 +1,102 @@
+syntax = "proto3";
+
+package mykvstoreserverpb;
+
+option go_package = "./;mykvstoreserverpb";
+
+service KV {
+
+  // Put puts a key-value pair into the key-value store
+  rpc Put(PutRequest) returns (PutResponse) {}
+}
+
+service Watch {
+
+  // Watch watches for events happening or that have happened
+  rpc Watch(stream WatchRequest) returns(stream WatchResponse){}
+}
+
+message ResponseHeader {
+  uint64 cluster_id = 1;
+  uint64 member_id = 2;
+  int64 revision = 3;
+  int64 raft_term = 4;
+}
+
+message KeyValue {
+  bytes key = 1;
+  int64 create_revision = 2;
+  int64 mod_revision = 3;
+  int64 version = 4;
+  bytes value = 5;
+}
+
+message PutRequest {
+  bytes key = 1;
+  bytes value = 2;
+  bool prev_kv = 4;
+  int64 lease = 5;
+}
+
+message PutResponse {
+  ResponseHeader header = 1;
+  KeyValue prev_kv = 2;
+}
+
+message WatchRequest {
+  oneof request_union {
+    WatchCreateRequest create_request = 1;
+    WatchCancelRequest cancel_request = 2;
+    WatchProgressRequest progress_request = 3;
+  }
+}
+
+message WatchCreateRequest {
+  bytes key = 1;
+  bytes range_end = 2;
+  int64  start_revision = 3;
+  bool progress_notify = 4;
+
+  enum FilterType {
+    NOPUT = 0;
+    NODELETE = 1;
+  }
+
+  repeated FilterType filters = 5;
+
+  bool prev_kv = 6;
+  int64  watch_id = 7;
+  bool fragment = 8;
+}
+
+message WatchCancelRequest {
+  int64  watch_id = 1;
+}
+
+message  WatchProgressRequest {
+
+}
+
+message WatchResponse {
+  ResponseHeader header = 1;
+
+  int64 watch_id = 2;
+  bool created = 3;
+  bool canceled = 4;
+  int64  compact_revision = 5;
+  string cancel_reason = 6;
+  bool fragment = 7;
+
+  repeated Event events = 8;
+}
+
+message Event {
+  enum EventType {
+    PUT = 0;
+    DELETE = 1;
+  }
+
+  EventType type = 1;
+  KeyValue kv = 2;
+  KeyValue prev_kv = 3;
+}
