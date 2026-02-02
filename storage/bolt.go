@@ -1,6 +1,7 @@
 package storage
 
 import (
+	"errors"
 	"fmt"
 	"os"
 	"path/filepath"
@@ -68,26 +69,72 @@ func (b *BoltBackend) Close() error {
 }
 
 func (b *BoltBackend) Get(bucket, key []byte) ([]byte, error) {
-	//TODO implement me
-	panic("implement me")
+	var value []byte
+
+	err := b.db.View(func(tx *bolt.Tx) error {
+		b := tx.Bucket(bucket)
+		if b == nil {
+			return ErrBucketNotFound
+		}
+
+		v := b.Get(key)
+		if v == nil {
+			return ErrKeyNotFound
+		}
+
+		value = make([]byte, len(v))
+		copy(value, v)
+
+		return nil
+	})
+
+	return value, err
 }
 
 func (b *BoltBackend) Put(bucket, key, value []byte) error {
-	//TODO implement me
-	panic("implement me")
+	return b.db.Update(func(tx *bolt.Tx) error {
+		b := tx.Bucket(bucket)
+		if b == nil {
+			return ErrBucketNotFound
+		}
+
+		return b.Put(key, value)
+	})
 }
 
 func (b *BoltBackend) Delete(bucket, key []byte) error {
-	//TODO implement me
-	panic("implement me")
+	return b.db.Update(func(tx *bolt.Tx) error {
+		b := tx.Bucket(bucket)
+		if b == nil {
+			return ErrBucketNotFound
+		}
+		return b.Delete(key)
+	})
 }
 
 func (b *BoltBackend) CreateBucket(name []byte) error {
-	//TODO implement me
-	panic("implement me")
+	return b.db.Update(func(tx *bolt.Tx) error {
+		_, err := tx.CreateBucket(name)
+		if errors.Is(err, bolt.ErrBucketExists) {
+			return ErrBucketExists
+		}
+		return err
+	})
 }
 
 func (b *BoltBackend) DeleteBucket(name []byte) error {
-	//TODO implement me
-	panic("implement me")
+	return b.db.Update(func(tx *bolt.Tx) error {
+		return tx.DeleteBucket(name)
+	})
+}
+
+// ForEach iterates over all keys in a bucket
+func (b *BoltBackend) ForEach(bucket []byte, fn func(k, v []byte) error) error {
+	return b.db.View(func(tx *bolt.Tx) error {
+		b := tx.Bucket(bucket)
+		if b == nil {
+			return ErrBucketNotFound
+		}
+		return b.ForEach(fn)
+	})
 }

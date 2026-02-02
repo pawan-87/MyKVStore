@@ -1,9 +1,10 @@
 package server
 
 import (
-	"context"
 	"fmt"
+	"mykvstore/mvcc"
 	"mykvstore/mykvstoreserverpb"
+	"mykvstore/raftnode"
 	"net"
 	"sync"
 
@@ -14,7 +15,10 @@ import (
 type Server struct {
 	mu sync.RWMutex
 
-	logger *zap.Logger
+	// Components
+	raftNode  *raftnode.Node
+	mvccStore *mvcc.Store
+	logger    *zap.Logger
 
 	// gRPC server
 	grpcServer *grpc.Server
@@ -28,7 +32,9 @@ type Server struct {
 }
 
 type Config struct {
-	Logger *zap.Logger
+	RaftNode  *raftnode.Node
+	MVCCStore *mvcc.Store
+	Logger    *zap.Logger
 
 	ListenAddr string
 	ClusterID  uint64
@@ -37,28 +43,12 @@ type Config struct {
 
 func NewConfig(cfg *Config) *Server {
 	return &Server{
-		logger: cfg.Logger,
-
+		raftNode:  cfg.RaftNode,
+		mvccStore: cfg.MVCCStore,
+		logger:    cfg.Logger,
 		clusterID: cfg.ClusterID,
 		memberID:  cfg.MemberID,
 	}
-}
-
-func (s *Server) Put(ctx context.Context, req *mykvstoreserverpb.PutRequest) (*mykvstoreserverpb.PutResponse, error) {
-
-	s.logger.Debug("Put request",
-		zap.ByteString("key", req.Key),
-		zap.Int("value_size", len(req.Value)),
-		zap.Int64("lease", req.Lease),
-	)
-
-	if err := s.checkLeader(); err != nil {
-		return nil, err
-	}
-
-	// Get previous value if requested
-
-	return nil, nil
 }
 
 func (s *Server) Start(listenAddr string) error {
@@ -102,4 +92,13 @@ func (s *Server) checkLeader() error {
 		return fmt.Errorf("not leader")
 	}
 	return nil
+}
+
+func (s *Server) makeHeader() *mykvstoreserverpb.ResponseHeader {
+	return &mykvstoreserverpb.ResponseHeader{
+		ClusterId: s.clusterID,
+		MemberId:  s.memberID,
+		Revision:  s.mvccStore.CurrentRevision(),
+		RaftTerm:  0,
+	}
 }

@@ -113,6 +113,110 @@ func (Event_EventType) EnumDescriptor() ([]byte, []int) {
 	return file_rpc_proto_rawDescGZIP(), []int{9, 0}
 }
 
+type RangeRequest_SortOrder int32
+
+const (
+	RangeRequest_NONE    RangeRequest_SortOrder = 0
+	RangeRequest_ASCEND  RangeRequest_SortOrder = 1
+	RangeRequest_DESCEND RangeRequest_SortOrder = 2
+)
+
+// Enum value maps for RangeRequest_SortOrder.
+var (
+	RangeRequest_SortOrder_name = map[int32]string{
+		0: "NONE",
+		1: "ASCEND",
+		2: "DESCEND",
+	}
+	RangeRequest_SortOrder_value = map[string]int32{
+		"NONE":    0,
+		"ASCEND":  1,
+		"DESCEND": 2,
+	}
+)
+
+func (x RangeRequest_SortOrder) Enum() *RangeRequest_SortOrder {
+	p := new(RangeRequest_SortOrder)
+	*p = x
+	return p
+}
+
+func (x RangeRequest_SortOrder) String() string {
+	return protoimpl.X.EnumStringOf(x.Descriptor(), protoreflect.EnumNumber(x))
+}
+
+func (RangeRequest_SortOrder) Descriptor() protoreflect.EnumDescriptor {
+	return file_rpc_proto_enumTypes[2].Descriptor()
+}
+
+func (RangeRequest_SortOrder) Type() protoreflect.EnumType {
+	return &file_rpc_proto_enumTypes[2]
+}
+
+func (x RangeRequest_SortOrder) Number() protoreflect.EnumNumber {
+	return protoreflect.EnumNumber(x)
+}
+
+// Deprecated: Use RangeRequest_SortOrder.Descriptor instead.
+func (RangeRequest_SortOrder) EnumDescriptor() ([]byte, []int) {
+	return file_rpc_proto_rawDescGZIP(), []int{10, 0}
+}
+
+type RangeRequest_SortTarget int32
+
+const (
+	RangeRequest_KEY     RangeRequest_SortTarget = 0
+	RangeRequest_VERSION RangeRequest_SortTarget = 1
+	RangeRequest_CREATE  RangeRequest_SortTarget = 2
+	RangeRequest_MOD     RangeRequest_SortTarget = 3
+	RangeRequest_VALUE   RangeRequest_SortTarget = 4
+)
+
+// Enum value maps for RangeRequest_SortTarget.
+var (
+	RangeRequest_SortTarget_name = map[int32]string{
+		0: "KEY",
+		1: "VERSION",
+		2: "CREATE",
+		3: "MOD",
+		4: "VALUE",
+	}
+	RangeRequest_SortTarget_value = map[string]int32{
+		"KEY":     0,
+		"VERSION": 1,
+		"CREATE":  2,
+		"MOD":     3,
+		"VALUE":   4,
+	}
+)
+
+func (x RangeRequest_SortTarget) Enum() *RangeRequest_SortTarget {
+	p := new(RangeRequest_SortTarget)
+	*p = x
+	return p
+}
+
+func (x RangeRequest_SortTarget) String() string {
+	return protoimpl.X.EnumStringOf(x.Descriptor(), protoreflect.EnumNumber(x))
+}
+
+func (RangeRequest_SortTarget) Descriptor() protoreflect.EnumDescriptor {
+	return file_rpc_proto_enumTypes[3].Descriptor()
+}
+
+func (RangeRequest_SortTarget) Type() protoreflect.EnumType {
+	return &file_rpc_proto_enumTypes[3]
+}
+
+func (x RangeRequest_SortTarget) Number() protoreflect.EnumNumber {
+	return protoreflect.EnumNumber(x)
+}
+
+// Deprecated: Use RangeRequest_SortTarget.Descriptor instead.
+func (RangeRequest_SortTarget) EnumDescriptor() ([]byte, []int) {
+	return file_rpc_proto_rawDescGZIP(), []int{10, 1}
+}
+
 type ResponseHeader struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	ClusterId     uint64                 `protobuf:"varint,1,opt,name=cluster_id,json=clusterId,proto3" json:"cluster_id,omitempty"`
@@ -188,6 +292,7 @@ type KeyValue struct {
 	ModRevision    int64                  `protobuf:"varint,3,opt,name=mod_revision,json=modRevision,proto3" json:"mod_revision,omitempty"`
 	Version        int64                  `protobuf:"varint,4,opt,name=version,proto3" json:"version,omitempty"`
 	Value          []byte                 `protobuf:"bytes,5,opt,name=value,proto3" json:"value,omitempty"`
+	Lease          int64                  `protobuf:"varint,6,opt,name=lease,proto3" json:"lease,omitempty"`
 	unknownFields  protoimpl.UnknownFields
 	sizeCache      protoimpl.SizeCache
 }
@@ -255,6 +360,13 @@ func (x *KeyValue) GetValue() []byte {
 		return x.Value
 	}
 	return nil
+}
+
+func (x *KeyValue) GetLease() int64 {
+	if x != nil {
+		return x.Lease
+	}
+	return 0
 }
 
 type PutRequest struct {
@@ -815,6 +927,430 @@ func (x *Event) GetPrevKv() *KeyValue {
 	return nil
 }
 
+type RangeRequest struct {
+	state             protoimpl.MessageState  `protogen:"open.v1"`
+	Key               []byte                  `protobuf:"bytes,1,opt,name=key,proto3" json:"key,omitempty"`
+	RangeEnd          []byte                  `protobuf:"bytes,2,opt,name=range_end,json=rangeEnd,proto3" json:"range_end,omitempty"`
+	Limit             int64                   `protobuf:"varint,3,opt,name=limit,proto3" json:"limit,omitempty"`
+	Revision          int64                   `protobuf:"varint,4,opt,name=revision,proto3" json:"revision,omitempty"`
+	SortOrder         RangeRequest_SortOrder  `protobuf:"varint,5,opt,name=sort_order,json=sortOrder,proto3,enum=mykvstoreserverpb.RangeRequest_SortOrder" json:"sort_order,omitempty"`
+	SortTarget        RangeRequest_SortTarget `protobuf:"varint,6,opt,name=sort_target,json=sortTarget,proto3,enum=mykvstoreserverpb.RangeRequest_SortTarget" json:"sort_target,omitempty"`
+	Serializable      bool                    `protobuf:"varint,7,opt,name=serializable,proto3" json:"serializable,omitempty"`
+	KeysOnly          bool                    `protobuf:"varint,8,opt,name=keys_only,json=keysOnly,proto3" json:"keys_only,omitempty"`
+	CountOnly         bool                    `protobuf:"varint,9,opt,name=count_only,json=countOnly,proto3" json:"count_only,omitempty"`
+	MinModRevision    int64                   `protobuf:"varint,10,opt,name=min_mod_revision,json=minModRevision,proto3" json:"min_mod_revision,omitempty"`
+	MaxModRevision    int64                   `protobuf:"varint,11,opt,name=max_mod_revision,json=maxModRevision,proto3" json:"max_mod_revision,omitempty"`
+	MinCreateRevision int64                   `protobuf:"varint,12,opt,name=min_create_revision,json=minCreateRevision,proto3" json:"min_create_revision,omitempty"`
+	MaxCreateRevision int64                   `protobuf:"varint,13,opt,name=max_create_revision,json=maxCreateRevision,proto3" json:"max_create_revision,omitempty"`
+	unknownFields     protoimpl.UnknownFields
+	sizeCache         protoimpl.SizeCache
+}
+
+func (x *RangeRequest) Reset() {
+	*x = RangeRequest{}
+	mi := &file_rpc_proto_msgTypes[10]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *RangeRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*RangeRequest) ProtoMessage() {}
+
+func (x *RangeRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_rpc_proto_msgTypes[10]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use RangeRequest.ProtoReflect.Descriptor instead.
+func (*RangeRequest) Descriptor() ([]byte, []int) {
+	return file_rpc_proto_rawDescGZIP(), []int{10}
+}
+
+func (x *RangeRequest) GetKey() []byte {
+	if x != nil {
+		return x.Key
+	}
+	return nil
+}
+
+func (x *RangeRequest) GetRangeEnd() []byte {
+	if x != nil {
+		return x.RangeEnd
+	}
+	return nil
+}
+
+func (x *RangeRequest) GetLimit() int64 {
+	if x != nil {
+		return x.Limit
+	}
+	return 0
+}
+
+func (x *RangeRequest) GetRevision() int64 {
+	if x != nil {
+		return x.Revision
+	}
+	return 0
+}
+
+func (x *RangeRequest) GetSortOrder() RangeRequest_SortOrder {
+	if x != nil {
+		return x.SortOrder
+	}
+	return RangeRequest_NONE
+}
+
+func (x *RangeRequest) GetSortTarget() RangeRequest_SortTarget {
+	if x != nil {
+		return x.SortTarget
+	}
+	return RangeRequest_KEY
+}
+
+func (x *RangeRequest) GetSerializable() bool {
+	if x != nil {
+		return x.Serializable
+	}
+	return false
+}
+
+func (x *RangeRequest) GetKeysOnly() bool {
+	if x != nil {
+		return x.KeysOnly
+	}
+	return false
+}
+
+func (x *RangeRequest) GetCountOnly() bool {
+	if x != nil {
+		return x.CountOnly
+	}
+	return false
+}
+
+func (x *RangeRequest) GetMinModRevision() int64 {
+	if x != nil {
+		return x.MinModRevision
+	}
+	return 0
+}
+
+func (x *RangeRequest) GetMaxModRevision() int64 {
+	if x != nil {
+		return x.MaxModRevision
+	}
+	return 0
+}
+
+func (x *RangeRequest) GetMinCreateRevision() int64 {
+	if x != nil {
+		return x.MinCreateRevision
+	}
+	return 0
+}
+
+func (x *RangeRequest) GetMaxCreateRevision() int64 {
+	if x != nil {
+		return x.MaxCreateRevision
+	}
+	return 0
+}
+
+type RangeResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Header        *ResponseHeader        `protobuf:"bytes,1,opt,name=header,proto3" json:"header,omitempty"`
+	Kvs           []*KeyValue            `protobuf:"bytes,2,rep,name=kvs,proto3" json:"kvs,omitempty"`
+	More          bool                   `protobuf:"varint,3,opt,name=more,proto3" json:"more,omitempty"`
+	Count         int64                  `protobuf:"varint,4,opt,name=count,proto3" json:"count,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *RangeResponse) Reset() {
+	*x = RangeResponse{}
+	mi := &file_rpc_proto_msgTypes[11]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *RangeResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*RangeResponse) ProtoMessage() {}
+
+func (x *RangeResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_rpc_proto_msgTypes[11]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use RangeResponse.ProtoReflect.Descriptor instead.
+func (*RangeResponse) Descriptor() ([]byte, []int) {
+	return file_rpc_proto_rawDescGZIP(), []int{11}
+}
+
+func (x *RangeResponse) GetHeader() *ResponseHeader {
+	if x != nil {
+		return x.Header
+	}
+	return nil
+}
+
+func (x *RangeResponse) GetKvs() []*KeyValue {
+	if x != nil {
+		return x.Kvs
+	}
+	return nil
+}
+
+func (x *RangeResponse) GetMore() bool {
+	if x != nil {
+		return x.More
+	}
+	return false
+}
+
+func (x *RangeResponse) GetCount() int64 {
+	if x != nil {
+		return x.Count
+	}
+	return 0
+}
+
+type DeleteRangeRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Key           []byte                 `protobuf:"bytes,1,opt,name=key,proto3" json:"key,omitempty"`
+	RangeEnd      []byte                 `protobuf:"bytes,2,opt,name=range_end,json=rangeEnd,proto3" json:"range_end,omitempty"`
+	PrevKv        bool                   `protobuf:"varint,3,opt,name=prev_kv,json=prevKv,proto3" json:"prev_kv,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *DeleteRangeRequest) Reset() {
+	*x = DeleteRangeRequest{}
+	mi := &file_rpc_proto_msgTypes[12]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *DeleteRangeRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*DeleteRangeRequest) ProtoMessage() {}
+
+func (x *DeleteRangeRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_rpc_proto_msgTypes[12]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use DeleteRangeRequest.ProtoReflect.Descriptor instead.
+func (*DeleteRangeRequest) Descriptor() ([]byte, []int) {
+	return file_rpc_proto_rawDescGZIP(), []int{12}
+}
+
+func (x *DeleteRangeRequest) GetKey() []byte {
+	if x != nil {
+		return x.Key
+	}
+	return nil
+}
+
+func (x *DeleteRangeRequest) GetRangeEnd() []byte {
+	if x != nil {
+		return x.RangeEnd
+	}
+	return nil
+}
+
+func (x *DeleteRangeRequest) GetPrevKv() bool {
+	if x != nil {
+		return x.PrevKv
+	}
+	return false
+}
+
+type DeleteRangeResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Header        *ResponseHeader        `protobuf:"bytes,1,opt,name=header,proto3" json:"header,omitempty"`
+	Deleted       int64                  `protobuf:"varint,2,opt,name=deleted,proto3" json:"deleted,omitempty"`
+	PrevKvs       []*KeyValue            `protobuf:"bytes,3,rep,name=prev_kvs,json=prevKvs,proto3" json:"prev_kvs,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *DeleteRangeResponse) Reset() {
+	*x = DeleteRangeResponse{}
+	mi := &file_rpc_proto_msgTypes[13]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *DeleteRangeResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*DeleteRangeResponse) ProtoMessage() {}
+
+func (x *DeleteRangeResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_rpc_proto_msgTypes[13]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use DeleteRangeResponse.ProtoReflect.Descriptor instead.
+func (*DeleteRangeResponse) Descriptor() ([]byte, []int) {
+	return file_rpc_proto_rawDescGZIP(), []int{13}
+}
+
+func (x *DeleteRangeResponse) GetHeader() *ResponseHeader {
+	if x != nil {
+		return x.Header
+	}
+	return nil
+}
+
+func (x *DeleteRangeResponse) GetDeleted() int64 {
+	if x != nil {
+		return x.Deleted
+	}
+	return 0
+}
+
+func (x *DeleteRangeResponse) GetPrevKvs() []*KeyValue {
+	if x != nil {
+		return x.PrevKvs
+	}
+	return nil
+}
+
+type CompactionRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Revision      int64                  `protobuf:"varint,1,opt,name=revision,proto3" json:"revision,omitempty"`
+	Physical      bool                   `protobuf:"varint,2,opt,name=physical,proto3" json:"physical,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *CompactionRequest) Reset() {
+	*x = CompactionRequest{}
+	mi := &file_rpc_proto_msgTypes[14]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *CompactionRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*CompactionRequest) ProtoMessage() {}
+
+func (x *CompactionRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_rpc_proto_msgTypes[14]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use CompactionRequest.ProtoReflect.Descriptor instead.
+func (*CompactionRequest) Descriptor() ([]byte, []int) {
+	return file_rpc_proto_rawDescGZIP(), []int{14}
+}
+
+func (x *CompactionRequest) GetRevision() int64 {
+	if x != nil {
+		return x.Revision
+	}
+	return 0
+}
+
+func (x *CompactionRequest) GetPhysical() bool {
+	if x != nil {
+		return x.Physical
+	}
+	return false
+}
+
+type CompactionResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Header        *ResponseHeader        `protobuf:"bytes,1,opt,name=header,proto3" json:"header,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *CompactionResponse) Reset() {
+	*x = CompactionResponse{}
+	mi := &file_rpc_proto_msgTypes[15]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *CompactionResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*CompactionResponse) ProtoMessage() {}
+
+func (x *CompactionResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_rpc_proto_msgTypes[15]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use CompactionResponse.ProtoReflect.Descriptor instead.
+func (*CompactionResponse) Descriptor() ([]byte, []int) {
+	return file_rpc_proto_rawDescGZIP(), []int{15}
+}
+
+func (x *CompactionResponse) GetHeader() *ResponseHeader {
+	if x != nil {
+		return x.Header
+	}
+	return nil
+}
+
 var File_rpc_proto protoreflect.FileDescriptor
 
 const file_rpc_proto_rawDesc = "" +
@@ -825,13 +1361,14 @@ const file_rpc_proto_rawDesc = "" +
 	"cluster_id\x18\x01 \x01(\x04R\tclusterId\x12\x1b\n" +
 	"\tmember_id\x18\x02 \x01(\x04R\bmemberId\x12\x1a\n" +
 	"\brevision\x18\x03 \x01(\x03R\brevision\x12\x1b\n" +
-	"\traft_term\x18\x04 \x01(\x03R\braftTerm\"\x98\x01\n" +
+	"\traft_term\x18\x04 \x01(\x03R\braftTerm\"\xae\x01\n" +
 	"\bKeyValue\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\fR\x03key\x12'\n" +
 	"\x0fcreate_revision\x18\x02 \x01(\x03R\x0ecreateRevision\x12!\n" +
 	"\fmod_revision\x18\x03 \x01(\x03R\vmodRevision\x12\x18\n" +
 	"\aversion\x18\x04 \x01(\x03R\aversion\x12\x14\n" +
-	"\x05value\x18\x05 \x01(\fR\x05value\"c\n" +
+	"\x05value\x18\x05 \x01(\fR\x05value\x12\x14\n" +
+	"\x05lease\x18\x06 \x01(\x03R\x05lease\"c\n" +
 	"\n" +
 	"PutRequest\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\fR\x03key\x12\x14\n" +
@@ -878,9 +1415,61 @@ const file_rpc_proto_rawDesc = "" +
 	"\tEventType\x12\a\n" +
 	"\x03PUT\x10\x00\x12\n" +
 	"\n" +
-	"\x06DELETE\x10\x012L\n" +
-	"\x02KV\x12F\n" +
-	"\x03Put\x12\x1d.mykvstoreserverpb.PutRequest\x1a\x1e.mykvstoreserverpb.PutResponse\"\x002Y\n" +
+	"\x06DELETE\x10\x01\"\x8e\x05\n" +
+	"\fRangeRequest\x12\x10\n" +
+	"\x03key\x18\x01 \x01(\fR\x03key\x12\x1b\n" +
+	"\trange_end\x18\x02 \x01(\fR\brangeEnd\x12\x14\n" +
+	"\x05limit\x18\x03 \x01(\x03R\x05limit\x12\x1a\n" +
+	"\brevision\x18\x04 \x01(\x03R\brevision\x12H\n" +
+	"\n" +
+	"sort_order\x18\x05 \x01(\x0e2).mykvstoreserverpb.RangeRequest.SortOrderR\tsortOrder\x12K\n" +
+	"\vsort_target\x18\x06 \x01(\x0e2*.mykvstoreserverpb.RangeRequest.SortTargetR\n" +
+	"sortTarget\x12\"\n" +
+	"\fserializable\x18\a \x01(\bR\fserializable\x12\x1b\n" +
+	"\tkeys_only\x18\b \x01(\bR\bkeysOnly\x12\x1d\n" +
+	"\n" +
+	"count_only\x18\t \x01(\bR\tcountOnly\x12(\n" +
+	"\x10min_mod_revision\x18\n" +
+	" \x01(\x03R\x0eminModRevision\x12(\n" +
+	"\x10max_mod_revision\x18\v \x01(\x03R\x0emaxModRevision\x12.\n" +
+	"\x13min_create_revision\x18\f \x01(\x03R\x11minCreateRevision\x12.\n" +
+	"\x13max_create_revision\x18\r \x01(\x03R\x11maxCreateRevision\".\n" +
+	"\tSortOrder\x12\b\n" +
+	"\x04NONE\x10\x00\x12\n" +
+	"\n" +
+	"\x06ASCEND\x10\x01\x12\v\n" +
+	"\aDESCEND\x10\x02\"B\n" +
+	"\n" +
+	"SortTarget\x12\a\n" +
+	"\x03KEY\x10\x00\x12\v\n" +
+	"\aVERSION\x10\x01\x12\n" +
+	"\n" +
+	"\x06CREATE\x10\x02\x12\a\n" +
+	"\x03MOD\x10\x03\x12\t\n" +
+	"\x05VALUE\x10\x04\"\xa3\x01\n" +
+	"\rRangeResponse\x129\n" +
+	"\x06header\x18\x01 \x01(\v2!.mykvstoreserverpb.ResponseHeaderR\x06header\x12-\n" +
+	"\x03kvs\x18\x02 \x03(\v2\x1b.mykvstoreserverpb.KeyValueR\x03kvs\x12\x12\n" +
+	"\x04more\x18\x03 \x01(\bR\x04more\x12\x14\n" +
+	"\x05count\x18\x04 \x01(\x03R\x05count\"\\\n" +
+	"\x12DeleteRangeRequest\x12\x10\n" +
+	"\x03key\x18\x01 \x01(\fR\x03key\x12\x1b\n" +
+	"\trange_end\x18\x02 \x01(\fR\brangeEnd\x12\x17\n" +
+	"\aprev_kv\x18\x03 \x01(\bR\x06prevKv\"\xa2\x01\n" +
+	"\x13DeleteRangeResponse\x129\n" +
+	"\x06header\x18\x01 \x01(\v2!.mykvstoreserverpb.ResponseHeaderR\x06header\x12\x18\n" +
+	"\adeleted\x18\x02 \x01(\x03R\adeleted\x126\n" +
+	"\bprev_kvs\x18\x03 \x03(\v2\x1b.mykvstoreserverpb.KeyValueR\aprevKvs\"K\n" +
+	"\x11CompactionRequest\x12\x1a\n" +
+	"\brevision\x18\x01 \x01(\x03R\brevision\x12\x1a\n" +
+	"\bphysical\x18\x02 \x01(\bR\bphysical\"O\n" +
+	"\x12CompactionResponse\x129\n" +
+	"\x06header\x18\x01 \x01(\v2!.mykvstoreserverpb.ResponseHeaderR\x06header2\xd4\x02\n" +
+	"\x02KV\x12L\n" +
+	"\x05Range\x12\x1f.mykvstoreserverpb.RangeRequest\x1a .mykvstoreserverpb.RangeResponse\"\x00\x12F\n" +
+	"\x03Put\x12\x1d.mykvstoreserverpb.PutRequest\x1a\x1e.mykvstoreserverpb.PutResponse\"\x00\x12^\n" +
+	"\vDeleteRange\x12%.mykvstoreserverpb.DeleteRangeRequest\x1a&.mykvstoreserverpb.DeleteRangeResponse\"\x00\x12X\n" +
+	"\aCompact\x12$.mykvstoreserverpb.CompactionRequest\x1a%.mykvstoreserverpb.CompactionResponse\"\x002Y\n" +
 	"\x05Watch\x12P\n" +
 	"\x05Watch\x12\x1f.mykvstoreserverpb.WatchRequest\x1a .mykvstoreserverpb.WatchResponse\"\x00(\x010\x01B\x16Z\x14./;mykvstoreserverpbb\x06proto3"
 
@@ -896,43 +1485,64 @@ func file_rpc_proto_rawDescGZIP() []byte {
 	return file_rpc_proto_rawDescData
 }
 
-var file_rpc_proto_enumTypes = make([]protoimpl.EnumInfo, 2)
-var file_rpc_proto_msgTypes = make([]protoimpl.MessageInfo, 10)
+var file_rpc_proto_enumTypes = make([]protoimpl.EnumInfo, 4)
+var file_rpc_proto_msgTypes = make([]protoimpl.MessageInfo, 16)
 var file_rpc_proto_goTypes = []any{
 	(WatchCreateRequest_FilterType)(0), // 0: mykvstoreserverpb.WatchCreateRequest.FilterType
 	(Event_EventType)(0),               // 1: mykvstoreserverpb.Event.EventType
-	(*ResponseHeader)(nil),             // 2: mykvstoreserverpb.ResponseHeader
-	(*KeyValue)(nil),                   // 3: mykvstoreserverpb.KeyValue
-	(*PutRequest)(nil),                 // 4: mykvstoreserverpb.PutRequest
-	(*PutResponse)(nil),                // 5: mykvstoreserverpb.PutResponse
-	(*WatchRequest)(nil),               // 6: mykvstoreserverpb.WatchRequest
-	(*WatchCreateRequest)(nil),         // 7: mykvstoreserverpb.WatchCreateRequest
-	(*WatchCancelRequest)(nil),         // 8: mykvstoreserverpb.WatchCancelRequest
-	(*WatchProgressRequest)(nil),       // 9: mykvstoreserverpb.WatchProgressRequest
-	(*WatchResponse)(nil),              // 10: mykvstoreserverpb.WatchResponse
-	(*Event)(nil),                      // 11: mykvstoreserverpb.Event
+	(RangeRequest_SortOrder)(0),        // 2: mykvstoreserverpb.RangeRequest.SortOrder
+	(RangeRequest_SortTarget)(0),       // 3: mykvstoreserverpb.RangeRequest.SortTarget
+	(*ResponseHeader)(nil),             // 4: mykvstoreserverpb.ResponseHeader
+	(*KeyValue)(nil),                   // 5: mykvstoreserverpb.KeyValue
+	(*PutRequest)(nil),                 // 6: mykvstoreserverpb.PutRequest
+	(*PutResponse)(nil),                // 7: mykvstoreserverpb.PutResponse
+	(*WatchRequest)(nil),               // 8: mykvstoreserverpb.WatchRequest
+	(*WatchCreateRequest)(nil),         // 9: mykvstoreserverpb.WatchCreateRequest
+	(*WatchCancelRequest)(nil),         // 10: mykvstoreserverpb.WatchCancelRequest
+	(*WatchProgressRequest)(nil),       // 11: mykvstoreserverpb.WatchProgressRequest
+	(*WatchResponse)(nil),              // 12: mykvstoreserverpb.WatchResponse
+	(*Event)(nil),                      // 13: mykvstoreserverpb.Event
+	(*RangeRequest)(nil),               // 14: mykvstoreserverpb.RangeRequest
+	(*RangeResponse)(nil),              // 15: mykvstoreserverpb.RangeResponse
+	(*DeleteRangeRequest)(nil),         // 16: mykvstoreserverpb.DeleteRangeRequest
+	(*DeleteRangeResponse)(nil),        // 17: mykvstoreserverpb.DeleteRangeResponse
+	(*CompactionRequest)(nil),          // 18: mykvstoreserverpb.CompactionRequest
+	(*CompactionResponse)(nil),         // 19: mykvstoreserverpb.CompactionResponse
 }
 var file_rpc_proto_depIdxs = []int32{
-	2,  // 0: mykvstoreserverpb.PutResponse.header:type_name -> mykvstoreserverpb.ResponseHeader
-	3,  // 1: mykvstoreserverpb.PutResponse.prev_kv:type_name -> mykvstoreserverpb.KeyValue
-	7,  // 2: mykvstoreserverpb.WatchRequest.create_request:type_name -> mykvstoreserverpb.WatchCreateRequest
-	8,  // 3: mykvstoreserverpb.WatchRequest.cancel_request:type_name -> mykvstoreserverpb.WatchCancelRequest
-	9,  // 4: mykvstoreserverpb.WatchRequest.progress_request:type_name -> mykvstoreserverpb.WatchProgressRequest
+	4,  // 0: mykvstoreserverpb.PutResponse.header:type_name -> mykvstoreserverpb.ResponseHeader
+	5,  // 1: mykvstoreserverpb.PutResponse.prev_kv:type_name -> mykvstoreserverpb.KeyValue
+	9,  // 2: mykvstoreserverpb.WatchRequest.create_request:type_name -> mykvstoreserverpb.WatchCreateRequest
+	10, // 3: mykvstoreserverpb.WatchRequest.cancel_request:type_name -> mykvstoreserverpb.WatchCancelRequest
+	11, // 4: mykvstoreserverpb.WatchRequest.progress_request:type_name -> mykvstoreserverpb.WatchProgressRequest
 	0,  // 5: mykvstoreserverpb.WatchCreateRequest.filters:type_name -> mykvstoreserverpb.WatchCreateRequest.FilterType
-	2,  // 6: mykvstoreserverpb.WatchResponse.header:type_name -> mykvstoreserverpb.ResponseHeader
-	11, // 7: mykvstoreserverpb.WatchResponse.events:type_name -> mykvstoreserverpb.Event
+	4,  // 6: mykvstoreserverpb.WatchResponse.header:type_name -> mykvstoreserverpb.ResponseHeader
+	13, // 7: mykvstoreserverpb.WatchResponse.events:type_name -> mykvstoreserverpb.Event
 	1,  // 8: mykvstoreserverpb.Event.type:type_name -> mykvstoreserverpb.Event.EventType
-	3,  // 9: mykvstoreserverpb.Event.kv:type_name -> mykvstoreserverpb.KeyValue
-	3,  // 10: mykvstoreserverpb.Event.prev_kv:type_name -> mykvstoreserverpb.KeyValue
-	4,  // 11: mykvstoreserverpb.KV.Put:input_type -> mykvstoreserverpb.PutRequest
-	6,  // 12: mykvstoreserverpb.Watch.Watch:input_type -> mykvstoreserverpb.WatchRequest
-	5,  // 13: mykvstoreserverpb.KV.Put:output_type -> mykvstoreserverpb.PutResponse
-	10, // 14: mykvstoreserverpb.Watch.Watch:output_type -> mykvstoreserverpb.WatchResponse
-	13, // [13:15] is the sub-list for method output_type
-	11, // [11:13] is the sub-list for method input_type
-	11, // [11:11] is the sub-list for extension type_name
-	11, // [11:11] is the sub-list for extension extendee
-	0,  // [0:11] is the sub-list for field type_name
+	5,  // 9: mykvstoreserverpb.Event.kv:type_name -> mykvstoreserverpb.KeyValue
+	5,  // 10: mykvstoreserverpb.Event.prev_kv:type_name -> mykvstoreserverpb.KeyValue
+	2,  // 11: mykvstoreserverpb.RangeRequest.sort_order:type_name -> mykvstoreserverpb.RangeRequest.SortOrder
+	3,  // 12: mykvstoreserverpb.RangeRequest.sort_target:type_name -> mykvstoreserverpb.RangeRequest.SortTarget
+	4,  // 13: mykvstoreserverpb.RangeResponse.header:type_name -> mykvstoreserverpb.ResponseHeader
+	5,  // 14: mykvstoreserverpb.RangeResponse.kvs:type_name -> mykvstoreserverpb.KeyValue
+	4,  // 15: mykvstoreserverpb.DeleteRangeResponse.header:type_name -> mykvstoreserverpb.ResponseHeader
+	5,  // 16: mykvstoreserverpb.DeleteRangeResponse.prev_kvs:type_name -> mykvstoreserverpb.KeyValue
+	4,  // 17: mykvstoreserverpb.CompactionResponse.header:type_name -> mykvstoreserverpb.ResponseHeader
+	14, // 18: mykvstoreserverpb.KV.Range:input_type -> mykvstoreserverpb.RangeRequest
+	6,  // 19: mykvstoreserverpb.KV.Put:input_type -> mykvstoreserverpb.PutRequest
+	16, // 20: mykvstoreserverpb.KV.DeleteRange:input_type -> mykvstoreserverpb.DeleteRangeRequest
+	18, // 21: mykvstoreserverpb.KV.Compact:input_type -> mykvstoreserverpb.CompactionRequest
+	8,  // 22: mykvstoreserverpb.Watch.Watch:input_type -> mykvstoreserverpb.WatchRequest
+	15, // 23: mykvstoreserverpb.KV.Range:output_type -> mykvstoreserverpb.RangeResponse
+	7,  // 24: mykvstoreserverpb.KV.Put:output_type -> mykvstoreserverpb.PutResponse
+	17, // 25: mykvstoreserverpb.KV.DeleteRange:output_type -> mykvstoreserverpb.DeleteRangeResponse
+	19, // 26: mykvstoreserverpb.KV.Compact:output_type -> mykvstoreserverpb.CompactionResponse
+	12, // 27: mykvstoreserverpb.Watch.Watch:output_type -> mykvstoreserverpb.WatchResponse
+	23, // [23:28] is the sub-list for method output_type
+	18, // [18:23] is the sub-list for method input_type
+	18, // [18:18] is the sub-list for extension type_name
+	18, // [18:18] is the sub-list for extension extendee
+	0,  // [0:18] is the sub-list for field type_name
 }
 
 func init() { file_rpc_proto_init() }
@@ -950,8 +1560,8 @@ func file_rpc_proto_init() {
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_rpc_proto_rawDesc), len(file_rpc_proto_rawDesc)),
-			NumEnums:      2,
-			NumMessages:   10,
+			NumEnums:      4,
+			NumMessages:   16,
 			NumExtensions: 0,
 			NumServices:   2,
 		},

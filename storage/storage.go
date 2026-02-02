@@ -1,5 +1,9 @@
 package storage
 
+import (
+	"errors"
+)
+
 // Storage defines the interface for persistent storage
 type Storage interface {
 	Open() error
@@ -16,4 +20,21 @@ type Storage interface {
 	CreateBucket(name []byte) error
 
 	DeleteBucket(name []byte) error
+
+	ForEach(bucket []byte, fn func(k, v []byte) error) error
 }
+
+type OpType int
+
+const (
+	OpPut OpType = iota
+	OpDelete
+)
+
+var (
+	ErrKeyNotFound    = errors.New("key not found")
+	ErrBucketNotFound = errors.New("bucket not found")
+	ErrBucketExists   = errors.New("bucket already exists")
+	ErrTxClosed       = errors.New("transaction closed")
+	ErrDatabaseClosed = errors.New("database closed")
+)

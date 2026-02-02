@@ -19,15 +19,24 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	KV_Put_FullMethodName = "/mykvstoreserverpb.KV/Put"
+	KV_Range_FullMethodName       = "/mykvstoreserverpb.KV/Range"
+	KV_Put_FullMethodName         = "/mykvstoreserverpb.KV/Put"
+	KV_DeleteRange_FullMethodName = "/mykvstoreserverpb.KV/DeleteRange"
+	KV_Compact_FullMethodName     = "/mykvstoreserverpb.KV/Compact"
 )
 
 // KVClient is the client API for KV service.
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type KVClient interface {
+	// Range gets keys from the key-value store
+	Range(ctx context.Context, in *RangeRequest, opts ...grpc.CallOption) (*RangeResponse, error)
 	// Put puts a key-value pair into the key-value store
 	Put(ctx context.Context, in *PutRequest, opts ...grpc.CallOption) (*PutResponse, error)
+	// DeleteRange deletes a range of keys
+	DeleteRange(ctx context.Context, in *DeleteRangeRequest, opts ...grpc.CallOption) (*DeleteRangeResponse, error)
+	// Compact compacts the event history
+	Compact(ctx context.Context, in *CompactionRequest, opts ...grpc.CallOption) (*CompactionResponse, error)
 }
 
 type kVClient struct {
@@ -36,6 +45,16 @@ type kVClient struct {
 
 func NewKVClient(cc grpc.ClientConnInterface) KVClient {
 	return &kVClient{cc}
+}
+
+func (c *kVClient) Range(ctx context.Context, in *RangeRequest, opts ...grpc.CallOption) (*RangeResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(RangeResponse)
+	err := c.cc.Invoke(ctx, KV_Range_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
 }
 
 func (c *kVClient) Put(ctx context.Context, in *PutRequest, opts ...grpc.CallOption) (*PutResponse, error) {
@@ -48,12 +67,38 @@ func (c *kVClient) Put(ctx context.Context, in *PutRequest, opts ...grpc.CallOpt
 	return out, nil
 }
 
+func (c *kVClient) DeleteRange(ctx context.Context, in *DeleteRangeRequest, opts ...grpc.CallOption) (*DeleteRangeResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(DeleteRangeResponse)
+	err := c.cc.Invoke(ctx, KV_DeleteRange_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *kVClient) Compact(ctx context.Context, in *CompactionRequest, opts ...grpc.CallOption) (*CompactionResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(CompactionResponse)
+	err := c.cc.Invoke(ctx, KV_Compact_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // KVServer is the server API for KV service.
 // All implementations must embed UnimplementedKVServer
 // for forward compatibility.
 type KVServer interface {
+	// Range gets keys from the key-value store
+	Range(context.Context, *RangeRequest) (*RangeResponse, error)
 	// Put puts a key-value pair into the key-value store
 	Put(context.Context, *PutRequest) (*PutResponse, error)
+	// DeleteRange deletes a range of keys
+	DeleteRange(context.Context, *DeleteRangeRequest) (*DeleteRangeResponse, error)
+	// Compact compacts the event history
+	Compact(context.Context, *CompactionRequest) (*CompactionResponse, error)
 	mustEmbedUnimplementedKVServer()
 }
 
@@ -64,8 +109,17 @@ type KVServer interface {
 // pointer dereference when methods are called.
 type UnimplementedKVServer struct{}
 
+func (UnimplementedKVServer) Range(context.Context, *RangeRequest) (*RangeResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method Range not implemented")
+}
 func (UnimplementedKVServer) Put(context.Context, *PutRequest) (*PutResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Put not implemented")
+}
+func (UnimplementedKVServer) DeleteRange(context.Context, *DeleteRangeRequest) (*DeleteRangeResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method DeleteRange not implemented")
+}
+func (UnimplementedKVServer) Compact(context.Context, *CompactionRequest) (*CompactionResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method Compact not implemented")
 }
 func (UnimplementedKVServer) mustEmbedUnimplementedKVServer() {}
 func (UnimplementedKVServer) testEmbeddedByValue()            {}
@@ -88,6 +142,24 @@ func RegisterKVServer(s grpc.ServiceRegistrar, srv KVServer) {
 	s.RegisterService(&KV_ServiceDesc, srv)
 }
 
+func _KV_Range_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(RangeRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(KVServer).Range(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: KV_Range_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(KVServer).Range(ctx, req.(*RangeRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 func _KV_Put_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(PutRequest)
 	if err := dec(in); err != nil {
@@ -106,6 +178,42 @@ func _KV_Put_Handler(srv interface{}, ctx context.Context, dec func(interface{})
 	return interceptor(ctx, in, info, handler)
 }
 
+func _KV_DeleteRange_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(DeleteRangeRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(KVServer).DeleteRange(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: KV_DeleteRange_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(KVServer).DeleteRange(ctx, req.(*DeleteRangeRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _KV_Compact_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(CompactionRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(KVServer).Compact(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: KV_Compact_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(KVServer).Compact(ctx, req.(*CompactionRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // KV_ServiceDesc is the grpc.ServiceDesc for KV service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -114,8 +222,20 @@ var KV_ServiceDesc = grpc.ServiceDesc{
 	HandlerType: (*KVServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{
+			MethodName: "Range",
+			Handler:    _KV_Range_Handler,
+		},
+		{
 			MethodName: "Put",
 			Handler:    _KV_Put_Handler,
+		},
+		{
+			MethodName: "DeleteRange",
+			Handler:    _KV_DeleteRange_Handler,
+		},
+		{
+			MethodName: "Compact",
+			Handler:    _KV_Compact_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
