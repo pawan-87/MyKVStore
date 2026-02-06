@@ -1351,6 +1351,446 @@ func (x *CompactionResponse) GetHeader() *ResponseHeader {
 	return nil
 }
 
+type LeaseGrantRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	TTL           int64                  `protobuf:"varint,1,opt,name=TTL,proto3" json:"TTL,omitempty"`
+	ID            int64                  `protobuf:"varint,2,opt,name=ID,proto3" json:"ID,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *LeaseGrantRequest) Reset() {
+	*x = LeaseGrantRequest{}
+	mi := &file_rpc_proto_msgTypes[16]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *LeaseGrantRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*LeaseGrantRequest) ProtoMessage() {}
+
+func (x *LeaseGrantRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_rpc_proto_msgTypes[16]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use LeaseGrantRequest.ProtoReflect.Descriptor instead.
+func (*LeaseGrantRequest) Descriptor() ([]byte, []int) {
+	return file_rpc_proto_rawDescGZIP(), []int{16}
+}
+
+func (x *LeaseGrantRequest) GetTTL() int64 {
+	if x != nil {
+		return x.TTL
+	}
+	return 0
+}
+
+func (x *LeaseGrantRequest) GetID() int64 {
+	if x != nil {
+		return x.ID
+	}
+	return 0
+}
+
+type LeaseGrantResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Header        *ResponseHeader        `protobuf:"bytes,1,opt,name=header,proto3" json:"header,omitempty"`
+	ID            int64                  `protobuf:"varint,2,opt,name=ID,proto3" json:"ID,omitempty"`
+	TTL           int64                  `protobuf:"varint,3,opt,name=TTL,proto3" json:"TTL,omitempty"`
+	Error         string                 `protobuf:"bytes,4,opt,name=error,proto3" json:"error,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *LeaseGrantResponse) Reset() {
+	*x = LeaseGrantResponse{}
+	mi := &file_rpc_proto_msgTypes[17]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *LeaseGrantResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*LeaseGrantResponse) ProtoMessage() {}
+
+func (x *LeaseGrantResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_rpc_proto_msgTypes[17]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use LeaseGrantResponse.ProtoReflect.Descriptor instead.
+func (*LeaseGrantResponse) Descriptor() ([]byte, []int) {
+	return file_rpc_proto_rawDescGZIP(), []int{17}
+}
+
+func (x *LeaseGrantResponse) GetHeader() *ResponseHeader {
+	if x != nil {
+		return x.Header
+	}
+	return nil
+}
+
+func (x *LeaseGrantResponse) GetID() int64 {
+	if x != nil {
+		return x.ID
+	}
+	return 0
+}
+
+func (x *LeaseGrantResponse) GetTTL() int64 {
+	if x != nil {
+		return x.TTL
+	}
+	return 0
+}
+
+func (x *LeaseGrantResponse) GetError() string {
+	if x != nil {
+		return x.Error
+	}
+	return ""
+}
+
+type LeaseRevokeRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	ID            int64                  `protobuf:"varint,1,opt,name=ID,proto3" json:"ID,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *LeaseRevokeRequest) Reset() {
+	*x = LeaseRevokeRequest{}
+	mi := &file_rpc_proto_msgTypes[18]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *LeaseRevokeRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*LeaseRevokeRequest) ProtoMessage() {}
+
+func (x *LeaseRevokeRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_rpc_proto_msgTypes[18]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use LeaseRevokeRequest.ProtoReflect.Descriptor instead.
+func (*LeaseRevokeRequest) Descriptor() ([]byte, []int) {
+	return file_rpc_proto_rawDescGZIP(), []int{18}
+}
+
+func (x *LeaseRevokeRequest) GetID() int64 {
+	if x != nil {
+		return x.ID
+	}
+	return 0
+}
+
+type LeaseRevokeResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Header        *ResponseHeader        `protobuf:"bytes,1,opt,name=header,proto3" json:"header,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *LeaseRevokeResponse) Reset() {
+	*x = LeaseRevokeResponse{}
+	mi := &file_rpc_proto_msgTypes[19]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *LeaseRevokeResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*LeaseRevokeResponse) ProtoMessage() {}
+
+func (x *LeaseRevokeResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_rpc_proto_msgTypes[19]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use LeaseRevokeResponse.ProtoReflect.Descriptor instead.
+func (*LeaseRevokeResponse) Descriptor() ([]byte, []int) {
+	return file_rpc_proto_rawDescGZIP(), []int{19}
+}
+
+func (x *LeaseRevokeResponse) GetHeader() *ResponseHeader {
+	if x != nil {
+		return x.Header
+	}
+	return nil
+}
+
+type LeaseKeepAliveRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	ID            int64                  `protobuf:"varint,1,opt,name=ID,proto3" json:"ID,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *LeaseKeepAliveRequest) Reset() {
+	*x = LeaseKeepAliveRequest{}
+	mi := &file_rpc_proto_msgTypes[20]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *LeaseKeepAliveRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*LeaseKeepAliveRequest) ProtoMessage() {}
+
+func (x *LeaseKeepAliveRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_rpc_proto_msgTypes[20]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use LeaseKeepAliveRequest.ProtoReflect.Descriptor instead.
+func (*LeaseKeepAliveRequest) Descriptor() ([]byte, []int) {
+	return file_rpc_proto_rawDescGZIP(), []int{20}
+}
+
+func (x *LeaseKeepAliveRequest) GetID() int64 {
+	if x != nil {
+		return x.ID
+	}
+	return 0
+}
+
+type LeaseKeepAliveResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Header        *ResponseHeader        `protobuf:"bytes,1,opt,name=header,proto3" json:"header,omitempty"`
+	ID            int64                  `protobuf:"varint,2,opt,name=ID,proto3" json:"ID,omitempty"`
+	TTL           int64                  `protobuf:"varint,3,opt,name=TTL,proto3" json:"TTL,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *LeaseKeepAliveResponse) Reset() {
+	*x = LeaseKeepAliveResponse{}
+	mi := &file_rpc_proto_msgTypes[21]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *LeaseKeepAliveResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*LeaseKeepAliveResponse) ProtoMessage() {}
+
+func (x *LeaseKeepAliveResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_rpc_proto_msgTypes[21]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use LeaseKeepAliveResponse.ProtoReflect.Descriptor instead.
+func (*LeaseKeepAliveResponse) Descriptor() ([]byte, []int) {
+	return file_rpc_proto_rawDescGZIP(), []int{21}
+}
+
+func (x *LeaseKeepAliveResponse) GetHeader() *ResponseHeader {
+	if x != nil {
+		return x.Header
+	}
+	return nil
+}
+
+func (x *LeaseKeepAliveResponse) GetID() int64 {
+	if x != nil {
+		return x.ID
+	}
+	return 0
+}
+
+func (x *LeaseKeepAliveResponse) GetTTL() int64 {
+	if x != nil {
+		return x.TTL
+	}
+	return 0
+}
+
+type LeaseTimeToLiveRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	ID            int64                  `protobuf:"varint,1,opt,name=ID,proto3" json:"ID,omitempty"`
+	Keys          bool                   `protobuf:"varint,2,opt,name=keys,proto3" json:"keys,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *LeaseTimeToLiveRequest) Reset() {
+	*x = LeaseTimeToLiveRequest{}
+	mi := &file_rpc_proto_msgTypes[22]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *LeaseTimeToLiveRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*LeaseTimeToLiveRequest) ProtoMessage() {}
+
+func (x *LeaseTimeToLiveRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_rpc_proto_msgTypes[22]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use LeaseTimeToLiveRequest.ProtoReflect.Descriptor instead.
+func (*LeaseTimeToLiveRequest) Descriptor() ([]byte, []int) {
+	return file_rpc_proto_rawDescGZIP(), []int{22}
+}
+
+func (x *LeaseTimeToLiveRequest) GetID() int64 {
+	if x != nil {
+		return x.ID
+	}
+	return 0
+}
+
+func (x *LeaseTimeToLiveRequest) GetKeys() bool {
+	if x != nil {
+		return x.Keys
+	}
+	return false
+}
+
+type LeaseTimeToLiveResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Header        *ResponseHeader        `protobuf:"bytes,1,opt,name=header,proto3" json:"header,omitempty"`
+	ID            int64                  `protobuf:"varint,2,opt,name=ID,proto3" json:"ID,omitempty"`
+	TTL           int64                  `protobuf:"varint,3,opt,name=TTL,proto3" json:"TTL,omitempty"`
+	GrantedTTL    int64                  `protobuf:"varint,4,opt,name=grantedTTL,proto3" json:"grantedTTL,omitempty"`
+	Keys          [][]byte               `protobuf:"bytes,5,rep,name=keys,proto3" json:"keys,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *LeaseTimeToLiveResponse) Reset() {
+	*x = LeaseTimeToLiveResponse{}
+	mi := &file_rpc_proto_msgTypes[23]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *LeaseTimeToLiveResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*LeaseTimeToLiveResponse) ProtoMessage() {}
+
+func (x *LeaseTimeToLiveResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_rpc_proto_msgTypes[23]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use LeaseTimeToLiveResponse.ProtoReflect.Descriptor instead.
+func (*LeaseTimeToLiveResponse) Descriptor() ([]byte, []int) {
+	return file_rpc_proto_rawDescGZIP(), []int{23}
+}
+
+func (x *LeaseTimeToLiveResponse) GetHeader() *ResponseHeader {
+	if x != nil {
+		return x.Header
+	}
+	return nil
+}
+
+func (x *LeaseTimeToLiveResponse) GetID() int64 {
+	if x != nil {
+		return x.ID
+	}
+	return 0
+}
+
+func (x *LeaseTimeToLiveResponse) GetTTL() int64 {
+	if x != nil {
+		return x.TTL
+	}
+	return 0
+}
+
+func (x *LeaseTimeToLiveResponse) GetGrantedTTL() int64 {
+	if x != nil {
+		return x.GrantedTTL
+	}
+	return 0
+}
+
+func (x *LeaseTimeToLiveResponse) GetKeys() [][]byte {
+	if x != nil {
+		return x.Keys
+	}
+	return nil
+}
+
 var File_rpc_proto protoreflect.FileDescriptor
 
 const file_rpc_proto_rawDesc = "" +
@@ -1464,14 +1904,49 @@ const file_rpc_proto_rawDesc = "" +
 	"\brevision\x18\x01 \x01(\x03R\brevision\x12\x1a\n" +
 	"\bphysical\x18\x02 \x01(\bR\bphysical\"O\n" +
 	"\x12CompactionResponse\x129\n" +
-	"\x06header\x18\x01 \x01(\v2!.mykvstoreserverpb.ResponseHeaderR\x06header2\xd4\x02\n" +
+	"\x06header\x18\x01 \x01(\v2!.mykvstoreserverpb.ResponseHeaderR\x06header\"5\n" +
+	"\x11LeaseGrantRequest\x12\x10\n" +
+	"\x03TTL\x18\x01 \x01(\x03R\x03TTL\x12\x0e\n" +
+	"\x02ID\x18\x02 \x01(\x03R\x02ID\"\x87\x01\n" +
+	"\x12LeaseGrantResponse\x129\n" +
+	"\x06header\x18\x01 \x01(\v2!.mykvstoreserverpb.ResponseHeaderR\x06header\x12\x0e\n" +
+	"\x02ID\x18\x02 \x01(\x03R\x02ID\x12\x10\n" +
+	"\x03TTL\x18\x03 \x01(\x03R\x03TTL\x12\x14\n" +
+	"\x05error\x18\x04 \x01(\tR\x05error\"$\n" +
+	"\x12LeaseRevokeRequest\x12\x0e\n" +
+	"\x02ID\x18\x01 \x01(\x03R\x02ID\"P\n" +
+	"\x13LeaseRevokeResponse\x129\n" +
+	"\x06header\x18\x01 \x01(\v2!.mykvstoreserverpb.ResponseHeaderR\x06header\"'\n" +
+	"\x15LeaseKeepAliveRequest\x12\x0e\n" +
+	"\x02ID\x18\x01 \x01(\x03R\x02ID\"u\n" +
+	"\x16LeaseKeepAliveResponse\x129\n" +
+	"\x06header\x18\x01 \x01(\v2!.mykvstoreserverpb.ResponseHeaderR\x06header\x12\x0e\n" +
+	"\x02ID\x18\x02 \x01(\x03R\x02ID\x12\x10\n" +
+	"\x03TTL\x18\x03 \x01(\x03R\x03TTL\"<\n" +
+	"\x16LeaseTimeToLiveRequest\x12\x0e\n" +
+	"\x02ID\x18\x01 \x01(\x03R\x02ID\x12\x12\n" +
+	"\x04keys\x18\x02 \x01(\bR\x04keys\"\xaa\x01\n" +
+	"\x17LeaseTimeToLiveResponse\x129\n" +
+	"\x06header\x18\x01 \x01(\v2!.mykvstoreserverpb.ResponseHeaderR\x06header\x12\x0e\n" +
+	"\x02ID\x18\x02 \x01(\x03R\x02ID\x12\x10\n" +
+	"\x03TTL\x18\x03 \x01(\x03R\x03TTL\x12\x1e\n" +
+	"\n" +
+	"grantedTTL\x18\x04 \x01(\x03R\n" +
+	"grantedTTL\x12\x12\n" +
+	"\x04keys\x18\x05 \x03(\fR\x04keys2\xd4\x02\n" +
 	"\x02KV\x12L\n" +
 	"\x05Range\x12\x1f.mykvstoreserverpb.RangeRequest\x1a .mykvstoreserverpb.RangeResponse\"\x00\x12F\n" +
 	"\x03Put\x12\x1d.mykvstoreserverpb.PutRequest\x1a\x1e.mykvstoreserverpb.PutResponse\"\x00\x12^\n" +
 	"\vDeleteRange\x12%.mykvstoreserverpb.DeleteRangeRequest\x1a&.mykvstoreserverpb.DeleteRangeResponse\"\x00\x12X\n" +
 	"\aCompact\x12$.mykvstoreserverpb.CompactionRequest\x1a%.mykvstoreserverpb.CompactionResponse\"\x002Y\n" +
 	"\x05Watch\x12P\n" +
-	"\x05Watch\x12\x1f.mykvstoreserverpb.WatchRequest\x1a .mykvstoreserverpb.WatchResponse\"\x00(\x010\x01B\x16Z\x14./;mykvstoreserverpbb\x06proto3"
+	"\x05Watch\x12\x1f.mykvstoreserverpb.WatchRequest\x1a .mykvstoreserverpb.WatchResponse\"\x00(\x010\x012\x9d\x03\n" +
+	"\x05Lease\x12[\n" +
+	"\n" +
+	"LeaseGrant\x12$.mykvstoreserverpb.LeaseGrantRequest\x1a%.mykvstoreserverpb.LeaseGrantResponse\"\x00\x12^\n" +
+	"\vLeaseRevoke\x12%.mykvstoreserverpb.LeaseRevokeRequest\x1a&.mykvstoreserverpb.LeaseRevokeResponse\"\x00\x12k\n" +
+	"\x0eLeaseKeepAlive\x12(.mykvstoreserverpb.LeaseKeepAliveRequest\x1a).mykvstoreserverpb.LeaseKeepAliveResponse\"\x00(\x010\x01\x12j\n" +
+	"\x0fLeaseTimeToLive\x12).mykvstoreserverpb.LeaseTimeToLiveRequest\x1a*.mykvstoreserverpb.LeaseTimeToLiveResponse\"\x00B\x16Z\x14./;mykvstoreserverpbb\x06proto3"
 
 var (
 	file_rpc_proto_rawDescOnce sync.Once
@@ -1486,7 +1961,7 @@ func file_rpc_proto_rawDescGZIP() []byte {
 }
 
 var file_rpc_proto_enumTypes = make([]protoimpl.EnumInfo, 4)
-var file_rpc_proto_msgTypes = make([]protoimpl.MessageInfo, 16)
+var file_rpc_proto_msgTypes = make([]protoimpl.MessageInfo, 24)
 var file_rpc_proto_goTypes = []any{
 	(WatchCreateRequest_FilterType)(0), // 0: mykvstoreserverpb.WatchCreateRequest.FilterType
 	(Event_EventType)(0),               // 1: mykvstoreserverpb.Event.EventType
@@ -1508,6 +1983,14 @@ var file_rpc_proto_goTypes = []any{
 	(*DeleteRangeResponse)(nil),        // 17: mykvstoreserverpb.DeleteRangeResponse
 	(*CompactionRequest)(nil),          // 18: mykvstoreserverpb.CompactionRequest
 	(*CompactionResponse)(nil),         // 19: mykvstoreserverpb.CompactionResponse
+	(*LeaseGrantRequest)(nil),          // 20: mykvstoreserverpb.LeaseGrantRequest
+	(*LeaseGrantResponse)(nil),         // 21: mykvstoreserverpb.LeaseGrantResponse
+	(*LeaseRevokeRequest)(nil),         // 22: mykvstoreserverpb.LeaseRevokeRequest
+	(*LeaseRevokeResponse)(nil),        // 23: mykvstoreserverpb.LeaseRevokeResponse
+	(*LeaseKeepAliveRequest)(nil),      // 24: mykvstoreserverpb.LeaseKeepAliveRequest
+	(*LeaseKeepAliveResponse)(nil),     // 25: mykvstoreserverpb.LeaseKeepAliveResponse
+	(*LeaseTimeToLiveRequest)(nil),     // 26: mykvstoreserverpb.LeaseTimeToLiveRequest
+	(*LeaseTimeToLiveResponse)(nil),    // 27: mykvstoreserverpb.LeaseTimeToLiveResponse
 }
 var file_rpc_proto_depIdxs = []int32{
 	4,  // 0: mykvstoreserverpb.PutResponse.header:type_name -> mykvstoreserverpb.ResponseHeader
@@ -1528,21 +2011,33 @@ var file_rpc_proto_depIdxs = []int32{
 	4,  // 15: mykvstoreserverpb.DeleteRangeResponse.header:type_name -> mykvstoreserverpb.ResponseHeader
 	5,  // 16: mykvstoreserverpb.DeleteRangeResponse.prev_kvs:type_name -> mykvstoreserverpb.KeyValue
 	4,  // 17: mykvstoreserverpb.CompactionResponse.header:type_name -> mykvstoreserverpb.ResponseHeader
-	14, // 18: mykvstoreserverpb.KV.Range:input_type -> mykvstoreserverpb.RangeRequest
-	6,  // 19: mykvstoreserverpb.KV.Put:input_type -> mykvstoreserverpb.PutRequest
-	16, // 20: mykvstoreserverpb.KV.DeleteRange:input_type -> mykvstoreserverpb.DeleteRangeRequest
-	18, // 21: mykvstoreserverpb.KV.Compact:input_type -> mykvstoreserverpb.CompactionRequest
-	8,  // 22: mykvstoreserverpb.Watch.Watch:input_type -> mykvstoreserverpb.WatchRequest
-	15, // 23: mykvstoreserverpb.KV.Range:output_type -> mykvstoreserverpb.RangeResponse
-	7,  // 24: mykvstoreserverpb.KV.Put:output_type -> mykvstoreserverpb.PutResponse
-	17, // 25: mykvstoreserverpb.KV.DeleteRange:output_type -> mykvstoreserverpb.DeleteRangeResponse
-	19, // 26: mykvstoreserverpb.KV.Compact:output_type -> mykvstoreserverpb.CompactionResponse
-	12, // 27: mykvstoreserverpb.Watch.Watch:output_type -> mykvstoreserverpb.WatchResponse
-	23, // [23:28] is the sub-list for method output_type
-	18, // [18:23] is the sub-list for method input_type
-	18, // [18:18] is the sub-list for extension type_name
-	18, // [18:18] is the sub-list for extension extendee
-	0,  // [0:18] is the sub-list for field type_name
+	4,  // 18: mykvstoreserverpb.LeaseGrantResponse.header:type_name -> mykvstoreserverpb.ResponseHeader
+	4,  // 19: mykvstoreserverpb.LeaseRevokeResponse.header:type_name -> mykvstoreserverpb.ResponseHeader
+	4,  // 20: mykvstoreserverpb.LeaseKeepAliveResponse.header:type_name -> mykvstoreserverpb.ResponseHeader
+	4,  // 21: mykvstoreserverpb.LeaseTimeToLiveResponse.header:type_name -> mykvstoreserverpb.ResponseHeader
+	14, // 22: mykvstoreserverpb.KV.Range:input_type -> mykvstoreserverpb.RangeRequest
+	6,  // 23: mykvstoreserverpb.KV.Put:input_type -> mykvstoreserverpb.PutRequest
+	16, // 24: mykvstoreserverpb.KV.DeleteRange:input_type -> mykvstoreserverpb.DeleteRangeRequest
+	18, // 25: mykvstoreserverpb.KV.Compact:input_type -> mykvstoreserverpb.CompactionRequest
+	8,  // 26: mykvstoreserverpb.Watch.Watch:input_type -> mykvstoreserverpb.WatchRequest
+	20, // 27: mykvstoreserverpb.Lease.LeaseGrant:input_type -> mykvstoreserverpb.LeaseGrantRequest
+	22, // 28: mykvstoreserverpb.Lease.LeaseRevoke:input_type -> mykvstoreserverpb.LeaseRevokeRequest
+	24, // 29: mykvstoreserverpb.Lease.LeaseKeepAlive:input_type -> mykvstoreserverpb.LeaseKeepAliveRequest
+	26, // 30: mykvstoreserverpb.Lease.LeaseTimeToLive:input_type -> mykvstoreserverpb.LeaseTimeToLiveRequest
+	15, // 31: mykvstoreserverpb.KV.Range:output_type -> mykvstoreserverpb.RangeResponse
+	7,  // 32: mykvstoreserverpb.KV.Put:output_type -> mykvstoreserverpb.PutResponse
+	17, // 33: mykvstoreserverpb.KV.DeleteRange:output_type -> mykvstoreserverpb.DeleteRangeResponse
+	19, // 34: mykvstoreserverpb.KV.Compact:output_type -> mykvstoreserverpb.CompactionResponse
+	12, // 35: mykvstoreserverpb.Watch.Watch:output_type -> mykvstoreserverpb.WatchResponse
+	21, // 36: mykvstoreserverpb.Lease.LeaseGrant:output_type -> mykvstoreserverpb.LeaseGrantResponse
+	23, // 37: mykvstoreserverpb.Lease.LeaseRevoke:output_type -> mykvstoreserverpb.LeaseRevokeResponse
+	25, // 38: mykvstoreserverpb.Lease.LeaseKeepAlive:output_type -> mykvstoreserverpb.LeaseKeepAliveResponse
+	27, // 39: mykvstoreserverpb.Lease.LeaseTimeToLive:output_type -> mykvstoreserverpb.LeaseTimeToLiveResponse
+	31, // [31:40] is the sub-list for method output_type
+	22, // [22:31] is the sub-list for method input_type
+	22, // [22:22] is the sub-list for extension type_name
+	22, // [22:22] is the sub-list for extension extendee
+	0,  // [0:22] is the sub-list for field type_name
 }
 
 func init() { file_rpc_proto_init() }
@@ -1561,9 +2056,9 @@ func file_rpc_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_rpc_proto_rawDesc), len(file_rpc_proto_rawDesc)),
 			NumEnums:      4,
-			NumMessages:   16,
+			NumMessages:   24,
 			NumExtensions: 0,
-			NumServices:   2,
+			NumServices:   3,
 		},
 		GoTypes:           file_rpc_proto_goTypes,
 		DependencyIndexes: file_rpc_proto_depIdxs,

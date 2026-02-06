@@ -25,6 +25,21 @@ service Watch {
   rpc Watch(stream WatchRequest) returns(stream WatchResponse){}
 }
 
+service Lease {
+
+  // LeaseGrant creates a lease
+  rpc LeaseGrant(LeaseGrantRequest) returns (LeaseGrantResponse) {}
+
+  // LeaseRevoke revokes a lease
+  rpc LeaseRevoke(LeaseRevokeRequest) returns (LeaseRevokeResponse) {}
+
+  // LeaseKeepAlive keeps the lease alive
+  rpc LeaseKeepAlive(stream LeaseKeepAliveRequest) returns (stream LeaseKeepAliveResponse) {}
+
+  // LeaseTimeToLive retrieves lease information
+  rpc LeaseTimeToLive(LeaseTimeToLiveRequest) returns (LeaseTimeToLiveResponse) {}
+}
+
 message ResponseHeader {
   uint64 cluster_id = 1;
   uint64 member_id = 2;
@@ -170,3 +185,47 @@ message CompactionRequest {
 message CompactionResponse {
   ResponseHeader header = 1;
 }
+
+message LeaseGrantRequest {
+  int64  TTL = 1;
+  int64  ID = 2;
+}
+
+message LeaseGrantResponse {
+  ResponseHeader header = 1;
+  int64 ID = 2;
+  int64 TTL = 3;
+  string error = 4;
+}
+
+message LeaseRevokeRequest {
+  int64 ID = 1;
+}
+
+message LeaseRevokeResponse {
+  ResponseHeader header = 1;
+}
+
+message LeaseKeepAliveRequest {
+  int64 ID = 1;
+}
+
+message LeaseKeepAliveResponse {
+  ResponseHeader header = 1;
+  int64 ID = 2;
+  int64 TTL = 3;
+}
+
+message LeaseTimeToLiveRequest {
+  int64 ID = 1;
+  bool keys = 2;
+}
+
+message LeaseTimeToLiveResponse {
+  ResponseHeader header = 1;
+  int64 ID = 2;
+  int64 TTL = 3;
+  int64 grantedTTL = 4;
+  repeated bytes keys = 5;
+}
+

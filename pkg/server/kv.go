@@ -4,7 +4,8 @@ import (
 	"context"
 	"fmt"
 	"mykvstore/mykvstoreserverpb"
-	"mykvstore/raftnode"
+	"mykvstore/pkg/lease"
+	"mykvstore/pkg/raftnode"
 	"time"
 
 	"go.uber.org/zap"
@@ -18,6 +19,14 @@ func (s *Server) Range(ctx context.Context, req *mykvstoreserverpb.RangeRequest)
 		zap.Int64("revision", req.Revision),
 	)
 
+	// Reads from followers may return stale data. For linearizable reads, must read from leader
+	if !req.Serializable {
+		if !s.raftNode.IsLeader() {
+			leaderID := s.raftNode.LeaderID()
+			return nil, NotLeaderError(leaderID, "unknown")
+		}
+	}
+
 	result, err := s.mvccStore.Range(
 		req.Key,
 		req.RangeEnd,
@@ -25,6 +34,7 @@ func (s *Server) Range(ctx context.Context, req *mykvstoreserverpb.RangeRequest)
 		int(req.Limit),
 	)
 	if err != nil {
+		s.logger.Error("Range failed", zap.Error(err))
 		return nil, err
 	}
 
@@ -39,6 +49,8 @@ func (s *Server) Range(ctx context.Context, req *mykvstoreserverpb.RangeRequest)
 			Lease:          kv.Lease,
 		}
 	}
+
+	s.logger.Debug("Range response", zap.Int("count", len(kvs)))
 
 	return &mykvstoreserverpb.RangeResponse{
 		Header: s.makeHeader(),
@@ -57,7 +69,8 @@ func (s *Server) Put(ctx context.Context, req *mykvstoreserverpb.PutRequest) (*m
 	)
 
 	if err := s.checkLeader(); err != nil {
-		return nil, err
+		leaderID := s.raftNode.LeaderID()
+		return nil, NotLeaderError(leaderID, "unknown")
 	}
 
 	// Get previous value if requested
@@ -77,14 +90,37 @@ func (s *Server) Put(ctx context.Context, req *mykvstoreserverpb.PutRequest) (*m
 	}
 
 	// Create Raft command
-	cmd := raftnode.NewPutCommand(req.Key, req.Value, req.Lease)
+	reqID := ReqID(s.reqIDGen.Next())
+	ch := s.applyWait.Register(reqID)
+	defer s.applyWait.Cancel(reqID)
+
+	s.logger.Debug("Registered request", zap.Uint64("req_id", uint64(reqID)))
+
+	cmd := raftnode.NewPutCommand(req.Key, req.Value, req.Lease, uint64(reqID))
 
 	// Propose through Raft
 	if err := s.raftNode.Propose(cmd); err != nil {
+		s.logger.Error("Failed to propose", zap.Error(err))
 		return nil, fmt.Errorf("failed to propose: %w", err)
 	}
 
-	time.Sleep(100 * time.Millisecond)
+	// Wait for apply
+	if _, err := Wait(ctx, ch, 5*time.Second); err != nil {
+		s.logger.Error("Request failed", zap.Error(err))
+		return nil, err
+	}
+
+	s.logger.Debug("Put completed", zap.Uint64("req_id", uint64(reqID)))
+
+	if req.Lease != 0 {
+		if err := s.lessor.AttachKey(lease.LeaseID(req.Lease), string(req.Key)); err != nil {
+			s.logger.Warn("Failed to attach key to lease",
+				zap.Int64("lease", req.Lease),
+				zap.ByteString("key", req.Key),
+				zap.Error(err),
+			)
+		}
+	}
 
 	return &mykvstoreserverpb.PutResponse{
 		Header: s.makeHeader(),
@@ -100,7 +136,8 @@ func (s *Server) DeleteRange(ctx context.Context, req *mykvstoreserverpb.DeleteR
 	)
 
 	if err := s.checkLeader(); err != nil {
-		return nil, err
+		leaderID := s.raftNode.LeaderID()
+		return nil, NotLeaderError(leaderID, "unknown")
 	}
 
 	// Get previous value if requested
@@ -126,13 +163,22 @@ func (s *Server) DeleteRange(ctx context.Context, req *mykvstoreserverpb.DeleteR
 		return nil, fmt.Errorf("range delete not yet implemented")
 	}
 
-	cmd := raftnode.NewDeleteCommand(req.Key)
+	reqID := ReqID(s.reqIDGen.Next())
+	ch := s.applyWait.Register(reqID)
+	defer s.applyWait.Cancel(reqID)
+	cmd := raftnode.NewDeleteCommand(req.Key, uint64(reqID))
 
 	if err := s.raftNode.Propose(cmd); err != nil {
+		s.logger.Error("Failed to propose", zap.Error(err))
 		return nil, fmt.Errorf("failed to propose: %w", err)
 	}
 
-	time.Sleep(100 * time.Millisecond)
+	if _, err := Wait(ctx, ch, 5*time.Second); err != nil {
+		s.logger.Error("Request failed", zap.Error(err))
+		return nil, err
+	}
+
+	s.logger.Debug("Delete completed", zap.Uint64("req_id", uint64(reqID)))
 
 	return &mykvstoreserverpb.DeleteRangeResponse{
 		Header:  s.makeHeader(),
@@ -146,16 +192,26 @@ func (s *Server) Compact(ctx context.Context, req *mykvstoreserverpb.CompactionR
 	s.logger.Debug("Compact request", zap.Int64("revision", req.Revision))
 
 	if err := s.checkLeader(); err != nil {
-		return nil, err
+		leaderID := s.raftNode.LeaderID()
+		return nil, NotLeaderError(leaderID, "unknown")
 	}
 
-	cmd := raftnode.NewCompactCommand(req.Revision)
+	reqID := ReqID(s.reqIDGen.Next())
+	ch := s.applyWait.Register(reqID)
+	defer s.applyWait.Cancel(reqID)
+	cmd := raftnode.NewCompactCommand(req.Revision, uint64(reqID))
 
 	if err := s.raftNode.Propose(cmd); err != nil {
+		s.logger.Error("Failed to propose", zap.Error(err))
 		return nil, fmt.Errorf("failed to propose: %w", err)
 	}
 
-	time.Sleep(100 * time.Millisecond)
+	if _, err := Wait(ctx, ch, 5*time.Second); err != nil {
+		s.logger.Error("Request failed", zap.Error(err))
+		return nil, err
+	}
+
+	s.logger.Debug("Compact completed", zap.Uint64("req_id", uint64(reqID)))
 
 	return &mykvstoreserverpb.CompactionResponse{
 		Header: s.makeHeader(),

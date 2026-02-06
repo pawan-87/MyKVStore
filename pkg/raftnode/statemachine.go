@@ -2,7 +2,7 @@ package raftnode
 
 import (
 	"fmt"
-	"mykvstore/mvcc"
+	"mykvstore/pkg/mvcc"
 )
 
 type StateMachine interface {

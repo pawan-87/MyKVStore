@@ -339,3 +339,222 @@ var Watch_ServiceDesc = grpc.ServiceDesc{
 	},
 	Metadata: "rpc.proto",
 }
+
+const (
+	Lease_LeaseGrant_FullMethodName      = "/mykvstoreserverpb.Lease/LeaseGrant"
+	Lease_LeaseRevoke_FullMethodName     = "/mykvstoreserverpb.Lease/LeaseRevoke"
+	Lease_LeaseKeepAlive_FullMethodName  = "/mykvstoreserverpb.Lease/LeaseKeepAlive"
+	Lease_LeaseTimeToLive_FullMethodName = "/mykvstoreserverpb.Lease/LeaseTimeToLive"
+)
+
+// LeaseClient is the client API for Lease service.
+//
+// For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
+type LeaseClient interface {
+	// LeaseGrant creates a lease
+	LeaseGrant(ctx context.Context, in *LeaseGrantRequest, opts ...grpc.CallOption) (*LeaseGrantResponse, error)
+	// LeaseRevoke revokes a lease
+	LeaseRevoke(ctx context.Context, in *LeaseRevokeRequest, opts ...grpc.CallOption) (*LeaseRevokeResponse, error)
+	// LeaseKeepAlive keeps the lease alive
+	LeaseKeepAlive(ctx context.Context, opts ...grpc.CallOption) (grpc.BidiStreamingClient[LeaseKeepAliveRequest, LeaseKeepAliveResponse], error)
+	// LeaseTimeToLive retrieves lease information
+	LeaseTimeToLive(ctx context.Context, in *LeaseTimeToLiveRequest, opts ...grpc.CallOption) (*LeaseTimeToLiveResponse, error)
+}
+
+type leaseClient struct {
+	cc grpc.ClientConnInterface
+}
+
+func NewLeaseClient(cc grpc.ClientConnInterface) LeaseClient {
+	return &leaseClient{cc}
+}
+
+func (c *leaseClient) LeaseGrant(ctx context.Context, in *LeaseGrantRequest, opts ...grpc.CallOption) (*LeaseGrantResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(LeaseGrantResponse)
+	err := c.cc.Invoke(ctx, Lease_LeaseGrant_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *leaseClient) LeaseRevoke(ctx context.Context, in *LeaseRevokeRequest, opts ...grpc.CallOption) (*LeaseRevokeResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(LeaseRevokeResponse)
+	err := c.cc.Invoke(ctx, Lease_LeaseRevoke_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *leaseClient) LeaseKeepAlive(ctx context.Context, opts ...grpc.CallOption) (grpc.BidiStreamingClient[LeaseKeepAliveRequest, LeaseKeepAliveResponse], error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	stream, err := c.cc.NewStream(ctx, &Lease_ServiceDesc.Streams[0], Lease_LeaseKeepAlive_FullMethodName, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	x := &grpc.GenericClientStream[LeaseKeepAliveRequest, LeaseKeepAliveResponse]{ClientStream: stream}
+	return x, nil
+}
+
+// This type alias is provided for backwards compatibility with existing code that references the prior non-generic stream type by name.
+type Lease_LeaseKeepAliveClient = grpc.BidiStreamingClient[LeaseKeepAliveRequest, LeaseKeepAliveResponse]
+
+func (c *leaseClient) LeaseTimeToLive(ctx context.Context, in *LeaseTimeToLiveRequest, opts ...grpc.CallOption) (*LeaseTimeToLiveResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(LeaseTimeToLiveResponse)
+	err := c.cc.Invoke(ctx, Lease_LeaseTimeToLive_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+// LeaseServer is the server API for Lease service.
+// All implementations must embed UnimplementedLeaseServer
+// for forward compatibility.
+type LeaseServer interface {
+	// LeaseGrant creates a lease
+	LeaseGrant(context.Context, *LeaseGrantRequest) (*LeaseGrantResponse, error)
+	// LeaseRevoke revokes a lease
+	LeaseRevoke(context.Context, *LeaseRevokeRequest) (*LeaseRevokeResponse, error)
+	// LeaseKeepAlive keeps the lease alive
+	LeaseKeepAlive(grpc.BidiStreamingServer[LeaseKeepAliveRequest, LeaseKeepAliveResponse]) error
+	// LeaseTimeToLive retrieves lease information
+	LeaseTimeToLive(context.Context, *LeaseTimeToLiveRequest) (*LeaseTimeToLiveResponse, error)
+	mustEmbedUnimplementedLeaseServer()
+}
+
+// UnimplementedLeaseServer must be embedded to have
+// forward compatible implementations.
+//
+// NOTE: this should be embedded by value instead of pointer to avoid a nil
+// pointer dereference when methods are called.
+type UnimplementedLeaseServer struct{}
+
+func (UnimplementedLeaseServer) LeaseGrant(context.Context, *LeaseGrantRequest) (*LeaseGrantResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method LeaseGrant not implemented")
+}
+func (UnimplementedLeaseServer) LeaseRevoke(context.Context, *LeaseRevokeRequest) (*LeaseRevokeResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method LeaseRevoke not implemented")
+}
+func (UnimplementedLeaseServer) LeaseKeepAlive(grpc.BidiStreamingServer[LeaseKeepAliveRequest, LeaseKeepAliveResponse]) error {
+	return status.Errorf(codes.Unimplemented, "method LeaseKeepAlive not implemented")
+}
+func (UnimplementedLeaseServer) LeaseTimeToLive(context.Context, *LeaseTimeToLiveRequest) (*LeaseTimeToLiveResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method LeaseTimeToLive not implemented")
+}
+func (UnimplementedLeaseServer) mustEmbedUnimplementedLeaseServer() {}
+func (UnimplementedLeaseServer) testEmbeddedByValue()               {}
+
+// UnsafeLeaseServer may be embedded to opt out of forward compatibility for this service.
+// Use of this interface is not recommended, as added methods to LeaseServer will
+// result in compilation errors.
+type UnsafeLeaseServer interface {
+	mustEmbedUnimplementedLeaseServer()
+}
+
+func RegisterLeaseServer(s grpc.ServiceRegistrar, srv LeaseServer) {
+	// If the following call pancis, it indicates UnimplementedLeaseServer was
+	// embedded by pointer and is nil.  This will cause panics if an
+	// unimplemented method is ever invoked, so we test this at initialization
+	// time to prevent it from happening at runtime later due to I/O.
+	if t, ok := srv.(interface{ testEmbeddedByValue() }); ok {
+		t.testEmbeddedByValue()
+	}
+	s.RegisterService(&Lease_ServiceDesc, srv)
+}
+
+func _Lease_LeaseGrant_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(LeaseGrantRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(LeaseServer).LeaseGrant(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Lease_LeaseGrant_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(LeaseServer).LeaseGrant(ctx, req.(*LeaseGrantRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Lease_LeaseRevoke_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(LeaseRevokeRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(LeaseServer).LeaseRevoke(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Lease_LeaseRevoke_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(LeaseServer).LeaseRevoke(ctx, req.(*LeaseRevokeRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Lease_LeaseKeepAlive_Handler(srv interface{}, stream grpc.ServerStream) error {
+	return srv.(LeaseServer).LeaseKeepAlive(&grpc.GenericServerStream[LeaseKeepAliveRequest, LeaseKeepAliveResponse]{ServerStream: stream})
+}
+
+// This type alias is provided for backwards compatibility with existing code that references the prior non-generic stream type by name.
+type Lease_LeaseKeepAliveServer = grpc.BidiStreamingServer[LeaseKeepAliveRequest, LeaseKeepAliveResponse]
+
+func _Lease_LeaseTimeToLive_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(LeaseTimeToLiveRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(LeaseServer).LeaseTimeToLive(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Lease_LeaseTimeToLive_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(LeaseServer).LeaseTimeToLive(ctx, req.(*LeaseTimeToLiveRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+// Lease_ServiceDesc is the grpc.ServiceDesc for Lease service.
+// It's only intended for direct use with grpc.RegisterService,
+// and not to be introspected or modified (even as a copy)
+var Lease_ServiceDesc = grpc.ServiceDesc{
+	ServiceName: "mykvstoreserverpb.Lease",
+	HandlerType: (*LeaseServer)(nil),
+	Methods: []grpc.MethodDesc{
+		{
+			MethodName: "LeaseGrant",
+			Handler:    _Lease_LeaseGrant_Handler,
+		},
+		{
+			MethodName: "LeaseRevoke",
+			Handler:    _Lease_LeaseRevoke_Handler,
+		},
+		{
+			MethodName: "LeaseTimeToLive",
+			Handler:    _Lease_LeaseTimeToLive_Handler,
+		},
+	},
+	Streams: []grpc.StreamDesc{
+		{
+			StreamName:    "LeaseKeepAlive",
+			Handler:       _Lease_LeaseKeepAlive_Handler,
+			ServerStreams: true,
+			ClientStreams: true,
+		},
+	},
+	Metadata: "rpc.proto",
+}

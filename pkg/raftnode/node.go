@@ -4,17 +4,22 @@ import (
 	"context"
 	"fmt"
 	"log"
-	"mykvstore/mvcc"
+	mvcc2 "mykvstore/pkg/mvcc"
 	"time"
 
 	"go.etcd.io/raft/v3"
 	"go.etcd.io/raft/v3/raftpb"
 )
 
+// ApplyCallback is called when a command is applied
+type ApplyCallback func(reqID uint64, result interface{}, err error)
+
+type WatchCallback func(key []byte, eventType int, kv, prevKV interface{})
+
 type Node struct {
 	id    uint64
 	node  raft.Node
-	store *mvcc.Store
+	store *mvcc2.Store
 
 	// Storage
 	storage *raft.MemoryStorage
@@ -31,6 +36,10 @@ type Node struct {
 
 	// Stop signal
 	stopC chan struct{}
+
+	applyCallback ApplyCallback
+
+	watchCallback WatchCallback
 }
 
 type commit struct {
@@ -42,7 +51,7 @@ type Config struct {
 	ID      uint64
 	Peers   []raft.Peer
 	Storage *raft.MemoryStorage
-	Store   *mvcc.Store
+	Store   *mvcc2.Store
 
 	// Raft configuration
 	ElectionTick  int
@@ -107,6 +116,14 @@ func (n *Node) run() {
 			return
 		}
 	}
+}
+
+func (n *Node) SetApplyCallback(callback ApplyCallback) {
+	n.applyCallback = callback
+}
+
+func (n *Node) SetWatchCallback(callback WatchCallback) {
+	n.watchCallback = callback
 }
 
 // serverChannels serves proposal and commit channels
@@ -193,28 +210,76 @@ func (n *Node) applyEntry(data []byte) {
 	cmd, err := DecodeCommand(data)
 	if err != nil {
 		log.Printf("Failed to decode command: %v", err)
+		if n.applyCallback != nil {
+			n.applyCallback(0, nil, err)
+		}
 		return
 	}
 
+	var result interface{}
+	var applyErr error
+	var eventType int
+	var prevKV *mvcc2.KeyValue
+
 	switch cmd.Type {
 	case CommandPut:
-		_, err := n.store.Put(cmd.Key, cmd.Value, cmd.Lease)
+		// Get previous value for watch
+		if n.watchCallback != nil {
+			prevKV, _ = n.store.Get(cmd.Key, 0)
+		}
+
+		rev, err := n.store.Put(cmd.Key, cmd.Value, cmd.Lease)
+		result = rev
+		applyErr = err
+		eventType = 0
+
 		if err != nil {
 			log.Printf("Failed to apply Put: %v", err)
 		}
 
+		// Notify watchers
+		if n.watchCallback != nil && err == nil {
+			kv, _ := n.store.Get(cmd.Key, 0)
+			n.watchCallback(cmd.Key, eventType, kv, prevKV)
+		}
 	case CommandDelete:
-		_, err := n.store.Delete(cmd.Key)
-		if err != nil {
-			log.Printf("Failed to apply Delete: %v", err)
-
+		// Get previous value for watch
+		if n.watchCallback != nil {
+			prevKV, _ = n.store.Get(cmd.Key, 0)
 		}
 
+		rev, err := n.store.Delete(cmd.Key)
+		result = rev
+		applyErr = err
+		eventType = 1
+
+		if err != nil {
+			log.Printf("Failed to apply Delete: %v", err)
+		}
+
+		// Notify watchers
+		if n.watchCallback != nil && err == nil {
+			kv, _ := n.store.Get(cmd.Key, 0)
+			n.watchCallback(cmd.Key, eventType, kv, prevKV)
+		}
 	case CommandCompact:
 		err := n.store.Compact(cmd.Revision)
+
+		applyErr = err
+
 		if err != nil {
 			log.Printf("Failed to apply Compact: %v", err)
 		}
+
+	case CommandLeaseGrant:
+		result = cmd.LeaseID
+
+	case CommandLeaseRevoke:
+		result = nil
+	}
+
+	if n.applyCallback != nil && cmd.ReqID > 0 {
+		n.applyCallback(cmd.ReqID, result, applyErr)
 	}
 }
 
@@ -236,6 +301,7 @@ func (n *Node) Propose(cmd *Command) error {
 	select {
 	case n.proposeC <- data:
 		return nil
+
 	case <-n.stopC:
 		return fmt.Errorf("node stopped")
 	}
@@ -246,6 +312,7 @@ func (n *Node) ProposeConfChange(cc raftpb.ConfChange) error {
 	select {
 	case n.confChangeC <- cc:
 		return nil
+
 	case <-n.stopC:
 		return fmt.Errorf("node stopped")
 	}
