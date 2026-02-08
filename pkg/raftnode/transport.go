@@ -179,6 +179,12 @@ func (t *Transport) pipeline(msg raftpb.Message, peerURL string) {
 	url := peerURL + "/raft"
 	resp, err := t.httpClient.Post(url, "application/protobuf", bytes.NewReader(data))
 	if err != nil {
+		t.logger.Warn("Transport: failed to send message",
+			zap.Uint64("to", msg.To),
+			zap.String("url", url),
+			zap.Stringer("type", msg.Type),
+			zap.Error(err),
+		)
 		if t.reportUnreachable != nil {
 			t.reportUnreachable(msg.To)
 		}

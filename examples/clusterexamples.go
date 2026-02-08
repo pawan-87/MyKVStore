@@ -4,6 +4,8 @@ import (
 	"context"
 	"fmt"
 	"log"
+	"net"
+	"net/url"
 	"time"
 
 	"github.com/pawan-87/MyKVStore/client"
@@ -25,14 +27,14 @@ func main() {
 	*/
 
 	allPeers := map[uint64]string{
-		1: "http://localhost:2380",
+		1: "http://127.0.0.1:2380",
 	}
 
 	node1Client, err := client.New("127.0.0.1:2379")
 	if err != nil {
 		log.Fatalf("clouldn't connect to node1: %v", err)
 	}
-	log.Println("Connected to node1 (localhost:2379)")
+	log.Println("Connected to node1 (127.0.0.1:2379)")
 
 	listMembers(node1Client)
 
@@ -43,16 +45,17 @@ func main() {
 
 	// add node2
 	_, err = addNode(node1Client,
-		"http://localhost:2480",
+		"http://127.0.0.1:2480",
 		true,
-		"localhost:2479",
+		"127.0.0.1:2479",
 		"./data/node2",
 		allPeers,
 	)
 	if err != nil {
 		log.Fatalf("Failed to add node2: %v", err)
 	}
-	time.Sleep(30 * time.Second) // waiting for node1 learner node to be sync with leader node so that we can promote it to follower node
+	waitForNode("http://127.0.0.1:2480", 120*time.Second) // wait until node2's peer transport is online
+	time.Sleep(3 * time.Second)                           // extra time for raft sync
 
 	putAndGet(node1Client, "afternode2", "afternode2val")
 
@@ -60,46 +63,53 @@ func main() {
 
 	// add node 3
 	node3ID, err := addNode(node1Client,
-		"http://localhost:2580",
+		"http://127.0.0.1:2580",
 		true,
-		"localhost:2579",
+		"127.0.0.1:2579",
 		"./data/node3",
 		allPeers,
 	)
 	if err != nil {
 		log.Fatalf("Failed to add node3: %v", err)
 	}
-
-	time.Sleep(30 * time.Second)
+	waitForNode("http://127.0.0.1:2580", 120*time.Second) // wait until node3's peer transport is online
+	time.Sleep(3 * time.Second)                           // extra time for raft sync
 
 	putAndGet(node1Client, "afternode3", "afternode3val")
 	listMembers(node1Client)
 
 	// add node 4
 	node4ID, err := addNode(node1Client,
-		"http://localhost:2680",
+		"http://127.0.0.1:2680",
 		true,
-		"localhost:2679",
+		"127.0.0.1:2679",
 		"./data/node4",
 		allPeers,
 	)
 	if err != nil {
 		log.Fatalf("Failed to add node4: %v", err)
 	}
+	waitForNode("http://127.0.0.1:2680", 120*time.Second) // wait until node4's peer transport is online
+	time.Sleep(3 * time.Second)                           // extra time for raft sync
 
-	time.Sleep(30 * time.Second)
+	log.Printf("🔍 Verifying node 3 is reachable before promotion...")
+	if !isNodeReachable("http://127.0.0.1:2580") {
+		log.Fatal("Node 3 is NOT reachable — cannot safely promote!")
+	}
+	log.Printf("Node 3 is reachable, promoting to voter...")
 
-	// Promote node3ID to follower node
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	_, err = node1Client.Cluster.MemberPromote(ctx, node3ID)
 	cancel()
 	if err != nil {
-		log.Printf("⚠️ Promote node3 failed: %v", err)
+		log.Printf("Promote node3 failed: %v", err)
 	} else {
-		log.Printf("✅ Node 3 promoted to voter")
+		log.Printf("Node 3 promoted to voter")
 	}
 
-	putAndGet(node1Client, "afternode3", "afternode3val")
+	time.Sleep(5 * time.Second)
+
+	putAndGet(node1Client, "afterpromote", "afterpromoteval")
 	listMembers(node1Client)
 
 	putAndGet(node1Client, "name3", "pawan")
@@ -119,6 +129,48 @@ func main() {
 	putAndGet(node1Client, "afterremovingnode3", "afterremovingnode3val")
 
 	listMembers(node1Client)
+}
+
+func waitForNode(peerURL string, timeout time.Duration) {
+	u, err := url.Parse(peerURL)
+	if err != nil {
+		log.Fatalf("invalid peer URL %q: %v", peerURL, err)
+	}
+	host := u.Host
+
+	log.Printf("Waiting for "+
+		"node at %s to come online (timeout %s)...", peerURL, timeout)
+
+	deadline := time.Now().Add(timeout)
+	attempt := 0
+	for time.Now().Before(deadline) {
+		attempt++
+		conn, err := net.DialTimeout("tcp", host, 1*time.Second)
+		if err == nil {
+			conn.Close()
+			log.Printf("Node at %s is online! (took %d attempts)", peerURL, attempt)
+			return
+		}
+		if attempt%10 == 0 {
+			remaining := time.Until(deadline).Round(time.Second)
+			log.Printf("Still waiting for %s ... (%s remaining)", peerURL, remaining)
+		}
+		time.Sleep(2 * time.Second)
+	}
+	log.Fatalf("TIMEOUT: Node at %s never came online after %s. Did you start it?", peerURL, timeout)
+}
+
+func isNodeReachable(peerURL string) bool {
+	u, err := url.Parse(peerURL)
+	if err != nil {
+		return false
+	}
+	conn, err := net.DialTimeout("tcp", u.Host, 2*time.Second)
+	if err != nil {
+		return false
+	}
+	conn.Close()
+	return true
 }
 
 func addNode(c *client.Client, peerURL string, isLearner bool, clientAddr string, dataDir string, allPeers map[uint64]string) (uint64, error) {
@@ -168,7 +220,7 @@ func listMembers(c *client.Client) {
 
 	log.Printf("Cluster members:")
 	for _, m := range resp.Members {
-		role := "volter"
+		role := "voter"
 		if m.IsLearner {
 			role = "learner"
 		}

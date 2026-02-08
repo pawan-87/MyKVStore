@@ -148,8 +148,8 @@ func (ms *MemberStore) Remove(id uint64) error {
 	ms.mu.Lock()
 	defer ms.mu.Unlock()
 
-	if _, exists := ms.members[id]; exists {
-		return fmt.Errorf("members %d not found", id)
+	if _, exists := ms.members[id]; !exists {
+		return fmt.Errorf("member %d not found", id)
 	}
 
 	if err := ms.deleteMemberFromBackend(id); err != nil {

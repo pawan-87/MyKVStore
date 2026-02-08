@@ -92,7 +92,7 @@ func main() {
 		MVCCStore:  mvccStore,
 		Backend:    backend,
 		Logger:     logger,
-		ListenAddr: *listenPeer,
+		ListenAddr: *listenClient,
 		ClusterID:  1,
 		MemberID:   *id,
 		PeerURL:    *listenPeer,
