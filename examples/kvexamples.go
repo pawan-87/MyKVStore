@@ -3,8 +3,9 @@ package main
 import (
 	"context"
 	"log"
-	client "mykvstore/client"
 	"time"
+
+	"github.com/pawan-87/MyKVStore/client"
 )
 
 func main() {

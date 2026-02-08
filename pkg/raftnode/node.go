@@ -5,15 +5,16 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"log"
+	"path/filepath"
+	"time"
+
 	"github.com/pawan-87/MyKVStore/mykvstoreserverpb"
 	"github.com/pawan-87/MyKVStore/pkg/cluster"
 	"github.com/pawan-87/MyKVStore/pkg/lease"
 	"github.com/pawan-87/MyKVStore/pkg/mvcc"
 	"github.com/pawan-87/MyKVStore/pkg/snapshot"
 	"github.com/pawan-87/MyKVStore/pkg/wal"
-	"log"
-	"path/filepath"
-	"time"
 
 	"go.etcd.io/raft/v3"
 	"go.etcd.io/raft/v3/raftpb"
@@ -89,6 +90,7 @@ type commit struct {
 type Config struct {
 	ID      uint64
 	Peers   []raft.Peer
+	Join    bool // true if joining an existing cluster (don't bootstrap)
 	Storage *raft.MemoryStorage
 	Store   *mvcc.Store
 
@@ -144,9 +146,14 @@ func NewNode(cfg *Config) *Node {
 	if hasExistingState {
 		node.node = raft.RestartNode(config)
 		logger.Info("Restarted raft node from WAL", zap.Uint64("id", cfg.ID))
+	} else if cfg.Join {
+		node.node = raft.RestartNode(config)
+		logger.Info("Joining existing cluster (no bootstrap)",
+			zap.Uint64("id", cfg.ID),
+		)
 	} else if len(cfg.Peers) > 0 {
 		node.node = raft.StartNode(config, cfg.Peers)
-		logger.Info("Started new raft node",
+		logger.Info("Started new raft node (bootstrap)",
 			zap.Uint64("id", cfg.ID),
 			zap.Int("peers", len(cfg.Peers)),
 		)

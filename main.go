@@ -25,6 +25,7 @@ func main() {
 		listenPeer     = flag.String("listen-peer", "http://127.0.0.1:12380", "Peer HTTP listen URL (for Raft transport)")
 		initialCluster = flag.String("initial-cluster", "1=http://127.0.0.1:12380", "Initial cluster:\"1=http://host1:port,2=http://host2:port,....\"")
 		dataDir        = flag.String("data-dir", "", "Data directory for WAL, snapshots, BoltDB (default:/tmp/mykvstore/node{id})")
+		join           = flag.Bool("join", false, "Join an existing cluster (set for nodes added via MemberAdd)")
 	)
 	flag.Parse()
 
@@ -43,6 +44,7 @@ func main() {
 		zap.String("client-addr", *listenClient),
 		zap.String("peer-url", *listenPeer),
 		zap.String("data-dir", *dataDir),
+		zap.Bool("join", *join),
 	)
 
 	peers, peerURLs := parseCluster(*initialCluster)
@@ -72,6 +74,7 @@ func main() {
 	raftNode := raftnode.NewNode(&raftnode.Config{
 		ID:      *id,
 		Peers:   peers,
+		Join:    *join,
 		Storage: memStorage,
 		Store:   mvccStore,
 

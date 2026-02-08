@@ -2,6 +2,11 @@ package server
 
 import (
 	"fmt"
+	"net"
+	"net/url"
+	"sync"
+	"time"
+
 	"github.com/pawan-87/MyKVStore/mykvstoreserverpb"
 	"github.com/pawan-87/MyKVStore/pkg/cluster"
 	"github.com/pawan-87/MyKVStore/pkg/lease"
@@ -9,9 +14,6 @@ import (
 	"github.com/pawan-87/MyKVStore/pkg/raftnode"
 	"github.com/pawan-87/MyKVStore/pkg/storage"
 	"github.com/pawan-87/MyKVStore/pkg/watch"
-	"net"
-	"sync"
-	"time"
 
 	"go.etcd.io/raft/v3/raftpb"
 	"go.uber.org/zap"
@@ -87,7 +89,7 @@ func NewConfig(cfg *Config) *Server {
 	if len(s.memberStore.List()) == 0 {
 		self := &cluster.Member{
 			ID:         cfg.MemberID,
-			Name:       fmt.Sprintln("member-%d", cfg.MemberID),
+			Name:       fmt.Sprintf("member-%d", cfg.MemberID),
 			PeerURLs:   []string{cfg.PeerURL},
 			ClientURLs: []string{cfg.ListenAddr},
 			IsLearner:  false,
@@ -171,7 +173,12 @@ func (s *Server) onLeaseExpire(leaseID lease.LeaseID, keys []string) {
 }
 
 func (s *Server) Start(listenAddr string) error {
-	lis, err := net.Listen("tcp", listenAddr)
+	addr := listenAddr
+	if u, err := url.Parse(listenAddr); err == nil && u.Host != "" {
+		addr = u.Host
+	}
+
+	lis, err := net.Listen("tcp", addr)
 	if err != nil {
 		return fmt.Errorf("failed to listen: %w", err)
 	}
