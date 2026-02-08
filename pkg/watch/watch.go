@@ -2,7 +2,7 @@ package watch
 
 import (
 	"bytes"
-	"mykvstore/mykvstoreserverpb"
+	"github.com/pawan-87/MyKVStore/mykvstoreserverpb"
 )
 
 type WatchID int64

@@ -5,10 +5,10 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"mykvstore/mykvstoreserverpb"
-	"mykvstore/pkg/lease"
-	"mykvstore/pkg/mvcc"
-	"mykvstore/pkg/storage"
+	"github.com/pawan-87/MyKVStore/mykvstoreserverpb"
+	"github.com/pawan-87/MyKVStore/pkg/lease"
+	"github.com/pawan-87/MyKVStore/pkg/mvcc"
+	"github.com/pawan-87/MyKVStore/pkg/storage"
 )
 
 func (s *Server) executeTxnRequest(ctx context.Context, req *mykvstoreserverpb.TxnRequest) (*mykvstoreserverpb.TxnResponse, error) {

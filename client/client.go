@@ -3,7 +3,7 @@ package client
 import (
 	"context"
 	"fmt"
-	"mykvstore/mykvstoreserverpb"
+	"github.com/pawan-87/MyKVStore/mykvstoreserverpb"
 	"time"
 
 	"google.golang.org/grpc"

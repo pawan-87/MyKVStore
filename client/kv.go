@@ -2,7 +2,7 @@ package client
 
 import (
 	"context"
-	"mykvstore/mykvstoreserverpb"
+	"github.com/pawan-87/MyKVStore/mykvstoreserverpb"
 )
 
 type KVClient struct {

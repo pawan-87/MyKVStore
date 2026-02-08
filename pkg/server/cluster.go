@@ -4,8 +4,8 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"mykvstore/mykvstoreserverpb"
-	"mykvstore/pkg/cluster"
+	"github.com/pawan-87/MyKVStore/mykvstoreserverpb"
+	"github.com/pawan-87/MyKVStore/pkg/cluster"
 	"time"
 
 	"go.etcd.io/raft/v3/raftpb"

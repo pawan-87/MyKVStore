@@ -3,7 +3,7 @@ package mvcc
 import (
 	"errors"
 	"fmt"
-	storage "mykvstore/pkg/storage"
+	storage "github.com/pawan-87/MyKVStore/pkg/storage"
 	"sync"
 )
 

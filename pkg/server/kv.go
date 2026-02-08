@@ -3,9 +3,9 @@ package server
 import (
 	"context"
 	"fmt"
-	"mykvstore/mykvstoreserverpb"
-	"mykvstore/pkg/lease"
-	"mykvstore/pkg/raftnode"
+	"github.com/pawan-87/MyKVStore/mykvstoreserverpb"
+	"github.com/pawan-87/MyKVStore/pkg/lease"
+	"github.com/pawan-87/MyKVStore/pkg/raftnode"
 	"time"
 
 	"go.uber.org/zap"

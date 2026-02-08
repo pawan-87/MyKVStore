@@ -1,9 +1,9 @@
 package server
 
 import (
+	"github.com/pawan-87/MyKVStore/mykvstoreserverpb"
+	"github.com/pawan-87/MyKVStore/pkg/watch"
 	"io"
-	"mykvstore/mykvstoreserverpb"
-	"mykvstore/pkg/watch"
 	"sync"
 
 	"go.uber.org/zap"

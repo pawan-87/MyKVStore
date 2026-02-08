@@ -1,4 +1,4 @@
-module mykvstore
+module github.com/pawan-87/MyKVStore
 
 go 1.25.1
 

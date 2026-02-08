@@ -1,8 +1,8 @@
 package watch
 
 import (
-	"mykvstore/mykvstoreserverpb"
-	mvcc2 "mykvstore/pkg/mvcc"
+	"github.com/pawan-87/MyKVStore/mykvstoreserverpb"
+	mvcc "github.com/pawan-87/MyKVStore/pkg/mvcc"
 	"sync"
 
 	"go.uber.org/zap"
@@ -15,12 +15,12 @@ type WatchManager struct {
 
 	nextID WatchID
 
-	mvccStore *mvcc2.Store
+	mvccStore *mvcc.Store
 
 	logger *zap.Logger
 }
 
-func NewWatchManager(mvccStore *mvcc2.Store, logger *zap.Logger) *WatchManager {
+func NewWatchManager(mvccStore *mvcc.Store, logger *zap.Logger) *WatchManager {
 	return &WatchManager{
 		watches:   make(map[WatchID]*Watch),
 		nextID:    1,
@@ -69,7 +69,7 @@ func (wm *WatchManager) CancelWatch(id WatchID) {
 }
 
 // Notify notifies all matching watches of an event
-func (wm *WatchManager) Notify(key []byte, eventType mykvstoreserverpb.Event_EventType, kv, prevKV *mvcc2.KeyValue) {
+func (wm *WatchManager) Notify(key []byte, eventType mykvstoreserverpb.Event_EventType, kv, prevKV *mvcc.KeyValue) {
 	wm.mu.RLock()
 	defer wm.mu.RUnlock()
 
