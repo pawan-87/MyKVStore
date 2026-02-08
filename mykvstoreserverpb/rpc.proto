@@ -2,7 +2,7 @@ syntax = "proto3";
 
 package mykvstoreserverpb;
 
-option go_package = "./;mykvstoreserverpb";
+option go_package = "github.com/pawan-87/MyKVStore/mykvstoreserverpb";
 
 service KV {
 
