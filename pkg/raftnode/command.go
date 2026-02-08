@@ -13,6 +13,8 @@ const (
 	CommandCompact
 	CommandLeaseGrant
 	CommandLeaseRevoke
+	CommandLeaseKeepAlive
+	CommandTxn
 )
 
 type Command struct {
@@ -29,6 +31,8 @@ type Command struct {
 
 	LeaseID  int64 `json:"lease_id,omitempty"`
 	LeaseTTL int64 `json:"lease_ttl,omitempty"`
+
+	TxnRequest []byte `json:"txn_request,omitempty"`
 }
 
 func (c *Command) Encode() ([]byte, error) {
@@ -83,5 +87,21 @@ func NewLeaseRevokeCommand(leaseID int64, reqID uint64) *Command {
 		Type:    CommandLeaseRevoke,
 		LeaseID: leaseID,
 		ReqID:   reqID,
+	}
+}
+
+func NewLeaseKeepAliveCommand(leaseID int64, reqID uint64) *Command {
+	return &Command{
+		Type:    CommandLeaseKeepAlive,
+		LeaseID: leaseID,
+		ReqID:   reqID,
+	}
+}
+
+func NewTxnCommand(txnRequest []byte, reqID uint64) *Command {
+	return &Command{
+		Type:       CommandTxn,
+		TxnRequest: txnRequest,
+		ReqID:      reqID,
 	}
 }

@@ -14,7 +14,9 @@ service KV {
 
   // DeleteRange deletes a range of keys
   rpc DeleteRange(DeleteRangeRequest) returns (DeleteRangeResponse) {}
-  
+
+  rpc Txn(TxnRequest) returns (TxnResponse) {}
+
   // Compact compacts the event history
   rpc Compact(CompactionRequest) returns (CompactionResponse) {}
 }
@@ -38,6 +40,25 @@ service Lease {
 
   // LeaseTimeToLive retrieves lease information
   rpc LeaseTimeToLive(LeaseTimeToLiveRequest) returns (LeaseTimeToLiveResponse) {}
+}
+
+service Cluster {
+
+  rpc MemberAdd(MemberAddRequest) returns (MemberAddResponse) {}
+
+  rpc MemberRemove(MemberRemoveRequest) returns (MemberRemoveResponse) {}
+
+  rpc MemberUpdate(MemberUpdateRequest) returns (MemberUpdateResponse) {}
+
+  rpc MemberList(MemberListRequest) returns (MemberListResponse) {}
+
+  rpc MemberPromote(MemberPromoteRequest) returns (MemberPromoteResponse) {}
+}
+
+service Maintenance {
+
+  // Status gets the status of the member
+  rpc Status(StatusRequest) returns (StatusResponse) {}
 }
 
 message ResponseHeader {
@@ -229,3 +250,151 @@ message LeaseTimeToLiveResponse {
   repeated bytes keys = 5;
 }
 
+message TxnRequest {
+  repeated Compare compare = 1;
+  repeated RequestOp success = 2;
+  repeated RequestOp failure = 3;
+}
+
+message Compare {
+  enum CompareResult {
+    EQUAL = 0;
+    GRATER = 1;
+    LESS = 2;
+    NOT_EQUAL = 3;
+  }
+
+  enum CompareTarget {
+    VERSION = 0;
+    CREATE = 1;
+    MOD = 2;
+    VALUE = 3;
+    LEASE = 4;
+  }
+
+  CompareResult result = 1;
+  CompareTarget target = 2;
+  bytes key = 3;
+
+  // target_union
+  int64 version = 4;
+  int64 create_revision = 5;
+  int64 mod_revision = 6;
+  bytes value = 7;
+  int64 lease = 8;
+}
+
+message RequestOp {
+  oneof request {
+    RangeRequest request_range = 1;
+    PutRequest request_put = 2;
+    DeleteRangeRequest request_delete_range = 3;
+    TxnRequest request_txn = 4;
+  }
+}
+
+message TxnResponse {
+  ResponseHeader header = 1;
+  bool succeeded = 2;
+  repeated ResponseOp responses = 3;
+}
+
+message ResponseOp {
+  oneof response {
+    RangeResponse response_range = 1;
+    PutResponse response_put = 2;
+    DeleteRangeResponse response_delete_range = 3;
+    TxnResponse response_txn = 4;
+  }
+}
+
+message Member {
+  uint64 ID = 1;
+  string name = 2;
+  repeated string peerURLs = 3;
+  repeated string clientURLs = 4;
+  bool isLearner = 5;
+}
+
+message MemberAddRequest {
+  // peerURLs is the list of URLs the added member will use to communicate with the cluster
+  repeated string peerURLs = 1;
+
+  // isLearner indicates if added member is a raft learner
+  bool isLearner = 2;
+}
+
+message MemberAddResponse {
+  ResponseHeader header = 1;
+  Member member = 2;
+  repeated Member members = 3;
+}
+
+message MemberRemoveRequest{
+  uint64 ID = 1;
+}
+
+message MemberRemoveResponse {
+  ResponseHeader header = 1;
+
+  // member is a list of all members after removing the member
+  repeated Member members = 2;
+}
+
+message MemberUpdateRequest {
+  uint64 ID = 1;
+  // peerURLs is the new list of URLs the member will use to communicate with the cluster
+  repeated string peerURLs = 2;
+}
+
+message MemberUpdateResponse {
+  ResponseHeader header = 1;
+  // members is a list of all members after updating the member
+  repeated Member members = 2;
+}
+
+message MemberListRequest {
+  // Linearizable requires quorum read, non-linearizable is from local data
+  bool linearizable  = 1;
+}
+
+message MemberListResponse {
+  ResponseHeader header = 1;
+  // list of members associated with the cluster
+  repeated Member members = 2;
+}
+
+message MemberPromoteRequest {
+  uint64 ID = 1;
+}
+
+message MemberPromoteResponse {
+  ResponseHeader header = 1;
+  // members is a list of all members after promoting the member
+  repeated Member members = 2;
+}
+
+message StatusRequest {
+
+}
+
+message StatusResponse {
+  ResponseHeader header = 1;
+
+  // version is the cluster protocol version used by the responding member
+  string version = 2;
+
+  // dbSize is the size of the backend database physically allocated, in bytes
+  int64 dbSize = 3;
+
+  uint64 leader = 4;
+  uint64 raftIndex = 5;
+  uint64 raftTerm = 6;
+  uint64 raftAppliedIndex = 7;
+
+  repeated string errors = 8;
+
+  int64 dbSizeInUse = 9;
+
+  bool isLearner = 10;
+}

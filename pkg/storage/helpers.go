@@ -2,6 +2,7 @@ package storage
 
 import (
 	"encoding/binary"
+	"errors"
 	"fmt"
 )
 
@@ -22,4 +23,17 @@ func ParseRevisionKey(b []byte) (int64, error) {
 		return 0, fmt.Errorf("invalid revision key length: got %d, want 8", len(b))
 	}
 	return int64(binary.BigEndian.Uint64(b)), nil
+}
+
+func GetRevision(s Storage) (int64, error) {
+	data, err := s.Get([]byte("meta"), []byte("revision"))
+
+	if err != nil {
+		if errors.Is(err, ErrKeyNotFound) {
+			return 0, nil
+		}
+		return 0, err
+	}
+
+	return int64(binary.BigEndian.Uint64(data)), nil
 }

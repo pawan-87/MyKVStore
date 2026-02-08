@@ -9,6 +9,7 @@ import (
 	"time"
 
 	"go.uber.org/zap"
+	"google.golang.org/protobuf/proto"
 )
 
 func (s *Server) Range(ctx context.Context, req *mykvstoreserverpb.RangeRequest) (*mykvstoreserverpb.RangeResponse, error) {
@@ -216,4 +217,55 @@ func (s *Server) Compact(ctx context.Context, req *mykvstoreserverpb.CompactionR
 	return &mykvstoreserverpb.CompactionResponse{
 		Header: s.makeHeader(),
 	}, nil
+}
+
+func (s *Server) Txn(ctx context.Context, req *mykvstoreserverpb.TxnRequest) (*mykvstoreserverpb.TxnResponse, error) {
+
+	s.logger.Debug("Txn request",
+		zap.Int("comparisons", len(req.Compare)),
+		zap.Int("success_ps", len(req.Success)),
+		zap.Int("failure_ops", len(req.Failure)),
+	)
+
+	if !s.raftNode.IsLeader() {
+		return nil, fmt.Errorf("not leader")
+	}
+
+	txnData, err := proto.Marshal(req)
+	if err != nil {
+		return nil, fmt.Errorf("failed to marshal transaction: %w", err)
+	}
+
+	// Create Raft command
+	reqID := ReqID(s.reqIDGen.Next())
+	ch := s.applyWait.Register(reqID)
+	defer s.applyWait.Cancel(reqID)
+
+	cmd := raftnode.NewTxnCommand(txnData, uint64(reqID))
+
+	if err := s.raftNode.Propose(cmd); err != nil {
+		return nil, fmt.Errorf("failed to propose: %w", err)
+	}
+
+	// Wait for apply
+	result, err := Wait(ctx, ch, 5*time.Second)
+	if err != nil {
+		s.logger.Error("Request failed", zap.Error(err))
+		return nil, err
+	}
+
+	txnResp, ok := result.Data.(*mykvstoreserverpb.TxnResponse)
+	if !ok {
+		return nil, fmt.Errorf("invalid response type from apply")
+	}
+
+	txnResp.Header = s.makeHeader()
+
+	s.logger.Debug("Txn completed",
+		zap.Uint64("req_id", uint64(reqID)),
+		zap.Bool("succeeded", txnResp.Succeeded),
+		zap.Int("responses", len(txnResp.Responses)),
+	)
+
+	return txnResp, nil
 }

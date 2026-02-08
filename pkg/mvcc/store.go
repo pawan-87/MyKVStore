@@ -23,10 +23,15 @@ type Store struct {
 }
 
 func NewStore(s storage.Storage) *Store {
-	return &Store{
+	store := &Store{
 		storage: s,
 		index:   NewIndex(),
 	}
+
+	rev, _ := storage.GetRevision(s)
+	store.currentRevision = rev
+
+	return store
 }
 
 func (s *Store) Put(key, value []byte, lease int64) (*KeyValue, error) {
@@ -73,6 +78,13 @@ func (s *Store) Put(key, value []byte, lease int64) (*KeyValue, error) {
 		return nil, err
 	}
 
+	s.index.Insert(key, newRevision)
+
+	// Update current revision in storage
+	if err := storage.PutRevision(s.storage, s.currentRevision); err != nil {
+		return nil, err
+	}
+
 	return kv, nil
 }
 
@@ -103,7 +115,7 @@ func (s *Store) Get(key []byte, atRevision int64) (*KeyValue, error) {
 		}
 	}
 
-	if targetRevision != -1 {
+	if targetRevision == -1 {
 		return nil, storage.ErrKeyNotFound
 	}
 

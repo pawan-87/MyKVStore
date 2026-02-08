@@ -22,6 +22,7 @@ const (
 	KV_Range_FullMethodName       = "/mykvstoreserverpb.KV/Range"
 	KV_Put_FullMethodName         = "/mykvstoreserverpb.KV/Put"
 	KV_DeleteRange_FullMethodName = "/mykvstoreserverpb.KV/DeleteRange"
+	KV_Txn_FullMethodName         = "/mykvstoreserverpb.KV/Txn"
 	KV_Compact_FullMethodName     = "/mykvstoreserverpb.KV/Compact"
 )
 
@@ -35,6 +36,7 @@ type KVClient interface {
 	Put(ctx context.Context, in *PutRequest, opts ...grpc.CallOption) (*PutResponse, error)
 	// DeleteRange deletes a range of keys
 	DeleteRange(ctx context.Context, in *DeleteRangeRequest, opts ...grpc.CallOption) (*DeleteRangeResponse, error)
+	Txn(ctx context.Context, in *TxnRequest, opts ...grpc.CallOption) (*TxnResponse, error)
 	// Compact compacts the event history
 	Compact(ctx context.Context, in *CompactionRequest, opts ...grpc.CallOption) (*CompactionResponse, error)
 }
@@ -77,6 +79,16 @@ func (c *kVClient) DeleteRange(ctx context.Context, in *DeleteRangeRequest, opts
 	return out, nil
 }
 
+func (c *kVClient) Txn(ctx context.Context, in *TxnRequest, opts ...grpc.CallOption) (*TxnResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(TxnResponse)
+	err := c.cc.Invoke(ctx, KV_Txn_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 func (c *kVClient) Compact(ctx context.Context, in *CompactionRequest, opts ...grpc.CallOption) (*CompactionResponse, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(CompactionResponse)
@@ -97,6 +109,7 @@ type KVServer interface {
 	Put(context.Context, *PutRequest) (*PutResponse, error)
 	// DeleteRange deletes a range of keys
 	DeleteRange(context.Context, *DeleteRangeRequest) (*DeleteRangeResponse, error)
+	Txn(context.Context, *TxnRequest) (*TxnResponse, error)
 	// Compact compacts the event history
 	Compact(context.Context, *CompactionRequest) (*CompactionResponse, error)
 	mustEmbedUnimplementedKVServer()
@@ -117,6 +130,9 @@ func (UnimplementedKVServer) Put(context.Context, *PutRequest) (*PutResponse, er
 }
 func (UnimplementedKVServer) DeleteRange(context.Context, *DeleteRangeRequest) (*DeleteRangeResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method DeleteRange not implemented")
+}
+func (UnimplementedKVServer) Txn(context.Context, *TxnRequest) (*TxnResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method Txn not implemented")
 }
 func (UnimplementedKVServer) Compact(context.Context, *CompactionRequest) (*CompactionResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Compact not implemented")
@@ -196,6 +212,24 @@ func _KV_DeleteRange_Handler(srv interface{}, ctx context.Context, dec func(inte
 	return interceptor(ctx, in, info, handler)
 }
 
+func _KV_Txn_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(TxnRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(KVServer).Txn(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: KV_Txn_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(KVServer).Txn(ctx, req.(*TxnRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 func _KV_Compact_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(CompactionRequest)
 	if err := dec(in); err != nil {
@@ -232,6 +266,10 @@ var KV_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "DeleteRange",
 			Handler:    _KV_DeleteRange_Handler,
+		},
+		{
+			MethodName: "Txn",
+			Handler:    _KV_Txn_Handler,
 		},
 		{
 			MethodName: "Compact",
@@ -556,5 +594,363 @@ var Lease_ServiceDesc = grpc.ServiceDesc{
 			ClientStreams: true,
 		},
 	},
+	Metadata: "rpc.proto",
+}
+
+const (
+	Cluster_MemberAdd_FullMethodName     = "/mykvstoreserverpb.Cluster/MemberAdd"
+	Cluster_MemberRemove_FullMethodName  = "/mykvstoreserverpb.Cluster/MemberRemove"
+	Cluster_MemberUpdate_FullMethodName  = "/mykvstoreserverpb.Cluster/MemberUpdate"
+	Cluster_MemberList_FullMethodName    = "/mykvstoreserverpb.Cluster/MemberList"
+	Cluster_MemberPromote_FullMethodName = "/mykvstoreserverpb.Cluster/MemberPromote"
+)
+
+// ClusterClient is the client API for Cluster service.
+//
+// For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
+type ClusterClient interface {
+	MemberAdd(ctx context.Context, in *MemberAddRequest, opts ...grpc.CallOption) (*MemberAddResponse, error)
+	MemberRemove(ctx context.Context, in *MemberRemoveRequest, opts ...grpc.CallOption) (*MemberRemoveResponse, error)
+	MemberUpdate(ctx context.Context, in *MemberUpdateRequest, opts ...grpc.CallOption) (*MemberUpdateResponse, error)
+	MemberList(ctx context.Context, in *MemberListRequest, opts ...grpc.CallOption) (*MemberListResponse, error)
+	MemberPromote(ctx context.Context, in *MemberPromoteRequest, opts ...grpc.CallOption) (*MemberPromoteResponse, error)
+}
+
+type clusterClient struct {
+	cc grpc.ClientConnInterface
+}
+
+func NewClusterClient(cc grpc.ClientConnInterface) ClusterClient {
+	return &clusterClient{cc}
+}
+
+func (c *clusterClient) MemberAdd(ctx context.Context, in *MemberAddRequest, opts ...grpc.CallOption) (*MemberAddResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(MemberAddResponse)
+	err := c.cc.Invoke(ctx, Cluster_MemberAdd_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *clusterClient) MemberRemove(ctx context.Context, in *MemberRemoveRequest, opts ...grpc.CallOption) (*MemberRemoveResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(MemberRemoveResponse)
+	err := c.cc.Invoke(ctx, Cluster_MemberRemove_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *clusterClient) MemberUpdate(ctx context.Context, in *MemberUpdateRequest, opts ...grpc.CallOption) (*MemberUpdateResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(MemberUpdateResponse)
+	err := c.cc.Invoke(ctx, Cluster_MemberUpdate_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *clusterClient) MemberList(ctx context.Context, in *MemberListRequest, opts ...grpc.CallOption) (*MemberListResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(MemberListResponse)
+	err := c.cc.Invoke(ctx, Cluster_MemberList_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *clusterClient) MemberPromote(ctx context.Context, in *MemberPromoteRequest, opts ...grpc.CallOption) (*MemberPromoteResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(MemberPromoteResponse)
+	err := c.cc.Invoke(ctx, Cluster_MemberPromote_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+// ClusterServer is the server API for Cluster service.
+// All implementations must embed UnimplementedClusterServer
+// for forward compatibility.
+type ClusterServer interface {
+	MemberAdd(context.Context, *MemberAddRequest) (*MemberAddResponse, error)
+	MemberRemove(context.Context, *MemberRemoveRequest) (*MemberRemoveResponse, error)
+	MemberUpdate(context.Context, *MemberUpdateRequest) (*MemberUpdateResponse, error)
+	MemberList(context.Context, *MemberListRequest) (*MemberListResponse, error)
+	MemberPromote(context.Context, *MemberPromoteRequest) (*MemberPromoteResponse, error)
+	mustEmbedUnimplementedClusterServer()
+}
+
+// UnimplementedClusterServer must be embedded to have
+// forward compatible implementations.
+//
+// NOTE: this should be embedded by value instead of pointer to avoid a nil
+// pointer dereference when methods are called.
+type UnimplementedClusterServer struct{}
+
+func (UnimplementedClusterServer) MemberAdd(context.Context, *MemberAddRequest) (*MemberAddResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method MemberAdd not implemented")
+}
+func (UnimplementedClusterServer) MemberRemove(context.Context, *MemberRemoveRequest) (*MemberRemoveResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method MemberRemove not implemented")
+}
+func (UnimplementedClusterServer) MemberUpdate(context.Context, *MemberUpdateRequest) (*MemberUpdateResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method MemberUpdate not implemented")
+}
+func (UnimplementedClusterServer) MemberList(context.Context, *MemberListRequest) (*MemberListResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method MemberList not implemented")
+}
+func (UnimplementedClusterServer) MemberPromote(context.Context, *MemberPromoteRequest) (*MemberPromoteResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method MemberPromote not implemented")
+}
+func (UnimplementedClusterServer) mustEmbedUnimplementedClusterServer() {}
+func (UnimplementedClusterServer) testEmbeddedByValue()                 {}
+
+// UnsafeClusterServer may be embedded to opt out of forward compatibility for this service.
+// Use of this interface is not recommended, as added methods to ClusterServer will
+// result in compilation errors.
+type UnsafeClusterServer interface {
+	mustEmbedUnimplementedClusterServer()
+}
+
+func RegisterClusterServer(s grpc.ServiceRegistrar, srv ClusterServer) {
+	// If the following call pancis, it indicates UnimplementedClusterServer was
+	// embedded by pointer and is nil.  This will cause panics if an
+	// unimplemented method is ever invoked, so we test this at initialization
+	// time to prevent it from happening at runtime later due to I/O.
+	if t, ok := srv.(interface{ testEmbeddedByValue() }); ok {
+		t.testEmbeddedByValue()
+	}
+	s.RegisterService(&Cluster_ServiceDesc, srv)
+}
+
+func _Cluster_MemberAdd_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(MemberAddRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ClusterServer).MemberAdd(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Cluster_MemberAdd_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ClusterServer).MemberAdd(ctx, req.(*MemberAddRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Cluster_MemberRemove_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(MemberRemoveRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ClusterServer).MemberRemove(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Cluster_MemberRemove_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ClusterServer).MemberRemove(ctx, req.(*MemberRemoveRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Cluster_MemberUpdate_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(MemberUpdateRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ClusterServer).MemberUpdate(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Cluster_MemberUpdate_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ClusterServer).MemberUpdate(ctx, req.(*MemberUpdateRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Cluster_MemberList_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(MemberListRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ClusterServer).MemberList(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Cluster_MemberList_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ClusterServer).MemberList(ctx, req.(*MemberListRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Cluster_MemberPromote_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(MemberPromoteRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ClusterServer).MemberPromote(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Cluster_MemberPromote_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ClusterServer).MemberPromote(ctx, req.(*MemberPromoteRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+// Cluster_ServiceDesc is the grpc.ServiceDesc for Cluster service.
+// It's only intended for direct use with grpc.RegisterService,
+// and not to be introspected or modified (even as a copy)
+var Cluster_ServiceDesc = grpc.ServiceDesc{
+	ServiceName: "mykvstoreserverpb.Cluster",
+	HandlerType: (*ClusterServer)(nil),
+	Methods: []grpc.MethodDesc{
+		{
+			MethodName: "MemberAdd",
+			Handler:    _Cluster_MemberAdd_Handler,
+		},
+		{
+			MethodName: "MemberRemove",
+			Handler:    _Cluster_MemberRemove_Handler,
+		},
+		{
+			MethodName: "MemberUpdate",
+			Handler:    _Cluster_MemberUpdate_Handler,
+		},
+		{
+			MethodName: "MemberList",
+			Handler:    _Cluster_MemberList_Handler,
+		},
+		{
+			MethodName: "MemberPromote",
+			Handler:    _Cluster_MemberPromote_Handler,
+		},
+	},
+	Streams:  []grpc.StreamDesc{},
+	Metadata: "rpc.proto",
+}
+
+const (
+	Maintenance_Status_FullMethodName = "/mykvstoreserverpb.Maintenance/Status"
+)
+
+// MaintenanceClient is the client API for Maintenance service.
+//
+// For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
+type MaintenanceClient interface {
+	// Status gets the status of the member
+	Status(ctx context.Context, in *StatusRequest, opts ...grpc.CallOption) (*StatusResponse, error)
+}
+
+type maintenanceClient struct {
+	cc grpc.ClientConnInterface
+}
+
+func NewMaintenanceClient(cc grpc.ClientConnInterface) MaintenanceClient {
+	return &maintenanceClient{cc}
+}
+
+func (c *maintenanceClient) Status(ctx context.Context, in *StatusRequest, opts ...grpc.CallOption) (*StatusResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(StatusResponse)
+	err := c.cc.Invoke(ctx, Maintenance_Status_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+// MaintenanceServer is the server API for Maintenance service.
+// All implementations must embed UnimplementedMaintenanceServer
+// for forward compatibility.
+type MaintenanceServer interface {
+	// Status gets the status of the member
+	Status(context.Context, *StatusRequest) (*StatusResponse, error)
+	mustEmbedUnimplementedMaintenanceServer()
+}
+
+// UnimplementedMaintenanceServer must be embedded to have
+// forward compatible implementations.
+//
+// NOTE: this should be embedded by value instead of pointer to avoid a nil
+// pointer dereference when methods are called.
+type UnimplementedMaintenanceServer struct{}
+
+func (UnimplementedMaintenanceServer) Status(context.Context, *StatusRequest) (*StatusResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method Status not implemented")
+}
+func (UnimplementedMaintenanceServer) mustEmbedUnimplementedMaintenanceServer() {}
+func (UnimplementedMaintenanceServer) testEmbeddedByValue()                     {}
+
+// UnsafeMaintenanceServer may be embedded to opt out of forward compatibility for this service.
+// Use of this interface is not recommended, as added methods to MaintenanceServer will
+// result in compilation errors.
+type UnsafeMaintenanceServer interface {
+	mustEmbedUnimplementedMaintenanceServer()
+}
+
+func RegisterMaintenanceServer(s grpc.ServiceRegistrar, srv MaintenanceServer) {
+	// If the following call pancis, it indicates UnimplementedMaintenanceServer was
+	// embedded by pointer and is nil.  This will cause panics if an
+	// unimplemented method is ever invoked, so we test this at initialization
+	// time to prevent it from happening at runtime later due to I/O.
+	if t, ok := srv.(interface{ testEmbeddedByValue() }); ok {
+		t.testEmbeddedByValue()
+	}
+	s.RegisterService(&Maintenance_ServiceDesc, srv)
+}
+
+func _Maintenance_Status_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(StatusRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(MaintenanceServer).Status(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Maintenance_Status_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(MaintenanceServer).Status(ctx, req.(*StatusRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+// Maintenance_ServiceDesc is the grpc.ServiceDesc for Maintenance service.
+// It's only intended for direct use with grpc.RegisterService,
+// and not to be introspected or modified (even as a copy)
+var Maintenance_ServiceDesc = grpc.ServiceDesc{
+	ServiceName: "mykvstoreserverpb.Maintenance",
+	HandlerType: (*MaintenanceServer)(nil),
+	Methods: []grpc.MethodDesc{
+		{
+			MethodName: "Status",
+			Handler:    _Maintenance_Status_Handler,
+		},
+	},
+	Streams:  []grpc.StreamDesc{},
 	Metadata: "rpc.proto",
 }

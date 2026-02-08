@@ -3,13 +3,17 @@ package server
 import (
 	"fmt"
 	"mykvstore/mykvstoreserverpb"
+	"mykvstore/pkg/cluster"
 	"mykvstore/pkg/lease"
 	"mykvstore/pkg/mvcc"
 	"mykvstore/pkg/raftnode"
+	"mykvstore/pkg/storage"
 	"mykvstore/pkg/watch"
 	"net"
 	"sync"
+	"time"
 
+	"go.etcd.io/raft/v3/raftpb"
 	"go.uber.org/zap"
 	"google.golang.org/grpc"
 )
@@ -25,6 +29,9 @@ type Server struct {
 	grpcServer *grpc.Server
 	listener   net.Listener
 
+	memberStore   *cluster.MemberStore
+	healthChecker *cluster.HealthChecker
+
 	clusterID uint64
 	memberID  uint64
 
@@ -36,16 +43,20 @@ type Server struct {
 	mykvstoreserverpb.UnimplementedKVServer
 	mykvstoreserverpb.UnimplementedWatchServer
 	mykvstoreserverpb.UnimplementedLeaseServer
+	mykvstoreserverpb.UnimplementedClusterServer
+	mykvstoreserverpb.UnimplementedMaintenanceServer
 }
 
 type Config struct {
 	RaftNode  *raftnode.Node
 	MVCCStore *mvcc.Store
+	Backend   *storage.BoltBackend
 	Logger    *zap.Logger
 
 	ListenAddr string
 	ClusterID  uint64
 	MemberID   uint64
+	PeerURL    string
 }
 
 func NewConfig(cfg *Config) *Server {
@@ -58,7 +69,7 @@ func NewConfig(cfg *Config) *Server {
 		applyWait:    NewApplyWait(),
 		reqIDGen:     NewReqIDGen(cfg.MemberID),
 		watchManager: watch.NewWatchManager(cfg.MVCCStore, cfg.Logger),
-		lessor:       lease.NewLessor(cfg.Logger),
+		lessor:       lease.NewLessor(cfg.Backend, cfg.Logger),
 	}
 
 	cfg.RaftNode.SetApplyCallback(s.onApply)
@@ -67,6 +78,27 @@ func NewConfig(cfg *Config) *Server {
 
 	s.lessor.SetExpiredCallback(s.onLeaseExpire)
 	s.lessor.Start()
+
+	s.memberStore = cluster.NewMemberStore(cfg.Backend, cfg.Logger)
+
+	cfg.RaftNode.SetMemberStore(s.memberStore)
+	cfg.RaftNode.SetConfChangeCallback(s.onConfChange)
+
+	if len(s.memberStore.List()) == 0 {
+		self := &cluster.Member{
+			ID:         cfg.MemberID,
+			Name:       fmt.Sprintln("member-%d", cfg.MemberID),
+			PeerURLs:   []string{cfg.PeerURL},
+			ClientURLs: []string{cfg.ListenAddr},
+			IsLearner:  false,
+		}
+		if err := s.memberStore.Add(self); err != nil {
+			cfg.Logger.Warn("Failed to register self in member store", zap.Error(err))
+		}
+	}
+
+	s.healthChecker = cluster.NewHealthChecker(5*time.Second, 2*time.Second, cfg.Logger)
+	s.healthChecker.Start(s.memberStore, s.checkMemberHealth)
 
 	return s
 }
@@ -80,6 +112,27 @@ func (s *Server) onApply(reqID uint64, result interface{}, err error) {
 
 	// Trigger the waiting request
 	s.applyWait.Trigger(ReqID(reqID), ApplyResult{Data: result, Err: err})
+}
+
+// onConfChange is called after a ConfgChange is commited and applied
+func (s *Server) onConfChange(cc raftpb.ConfChange, state *raftpb.ConfState) {
+	switch cc.Type {
+
+	// A new member was added
+	case raftpb.ConfChangeAddNode, raftpb.ConfChangeAddLearnerNode:
+		member := s.memberStore.Get(cc.NodeID)
+		if member != nil {
+			s.logger.Info("New member added, update transport",
+				zap.Uint64("member_id", member.ID),
+				zap.Strings("peer_urls", member.PeerURLs),
+			)
+		}
+
+	case raftpb.ConfChangeRemoveNode:
+		s.logger.Info("Member removed, update transport",
+			zap.Uint64("member_id", cc.NodeID),
+		)
+	}
 }
 
 // onWatch is called when a key changes
@@ -132,6 +185,9 @@ func (s *Server) Start(listenAddr string) error {
 
 	mykvstoreserverpb.RegisterKVServer(s.grpcServer, s)
 	mykvstoreserverpb.RegisterWatchServer(s.grpcServer, s)
+	mykvstoreserverpb.RegisterLeaseServer(s.grpcServer, s)
+	mykvstoreserverpb.RegisterClusterServer(s.grpcServer, s)
+	mykvstoreserverpb.RegisterMaintenanceServer(s.grpcServer, s)
 
 	s.logger.Info("Starting gRPC server", zap.String("addr", listenAddr))
 
@@ -154,6 +210,9 @@ func (s *Server) Stop() {
 	if s.lessor != nil {
 		s.lessor.Stop()
 	}
+	if s.healthChecker != nil {
+		s.healthChecker.Stop()
+	}
 }
 
 func (s *Server) checkLeader() error {
@@ -170,4 +229,9 @@ func (s *Server) makeHeader() *mykvstoreserverpb.ResponseHeader {
 		Revision:  s.mvccStore.CurrentRevision(),
 		RaftTerm:  0,
 	}
+}
+
+func (s *Server) checkMemberHealth(u uint64) error {
+	// TODO: Implement
+	return nil
 }

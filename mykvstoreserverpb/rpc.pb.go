@@ -217,6 +217,113 @@ func (RangeRequest_SortTarget) EnumDescriptor() ([]byte, []int) {
 	return file_rpc_proto_rawDescGZIP(), []int{10, 1}
 }
 
+type Compare_CompareResult int32
+
+const (
+	Compare_EQUAL     Compare_CompareResult = 0
+	Compare_GRATER    Compare_CompareResult = 1
+	Compare_LESS      Compare_CompareResult = 2
+	Compare_NOT_EQUAL Compare_CompareResult = 3
+)
+
+// Enum value maps for Compare_CompareResult.
+var (
+	Compare_CompareResult_name = map[int32]string{
+		0: "EQUAL",
+		1: "GRATER",
+		2: "LESS",
+		3: "NOT_EQUAL",
+	}
+	Compare_CompareResult_value = map[string]int32{
+		"EQUAL":     0,
+		"GRATER":    1,
+		"LESS":      2,
+		"NOT_EQUAL": 3,
+	}
+)
+
+func (x Compare_CompareResult) Enum() *Compare_CompareResult {
+	p := new(Compare_CompareResult)
+	*p = x
+	return p
+}
+
+func (x Compare_CompareResult) String() string {
+	return protoimpl.X.EnumStringOf(x.Descriptor(), protoreflect.EnumNumber(x))
+}
+
+func (Compare_CompareResult) Descriptor() protoreflect.EnumDescriptor {
+	return file_rpc_proto_enumTypes[4].Descriptor()
+}
+
+func (Compare_CompareResult) Type() protoreflect.EnumType {
+	return &file_rpc_proto_enumTypes[4]
+}
+
+func (x Compare_CompareResult) Number() protoreflect.EnumNumber {
+	return protoreflect.EnumNumber(x)
+}
+
+// Deprecated: Use Compare_CompareResult.Descriptor instead.
+func (Compare_CompareResult) EnumDescriptor() ([]byte, []int) {
+	return file_rpc_proto_rawDescGZIP(), []int{25, 0}
+}
+
+type Compare_CompareTarget int32
+
+const (
+	Compare_VERSION Compare_CompareTarget = 0
+	Compare_CREATE  Compare_CompareTarget = 1
+	Compare_MOD     Compare_CompareTarget = 2
+	Compare_VALUE   Compare_CompareTarget = 3
+	Compare_LEASE   Compare_CompareTarget = 4
+)
+
+// Enum value maps for Compare_CompareTarget.
+var (
+	Compare_CompareTarget_name = map[int32]string{
+		0: "VERSION",
+		1: "CREATE",
+		2: "MOD",
+		3: "VALUE",
+		4: "LEASE",
+	}
+	Compare_CompareTarget_value = map[string]int32{
+		"VERSION": 0,
+		"CREATE":  1,
+		"MOD":     2,
+		"VALUE":   3,
+		"LEASE":   4,
+	}
+)
+
+func (x Compare_CompareTarget) Enum() *Compare_CompareTarget {
+	p := new(Compare_CompareTarget)
+	*p = x
+	return p
+}
+
+func (x Compare_CompareTarget) String() string {
+	return protoimpl.X.EnumStringOf(x.Descriptor(), protoreflect.EnumNumber(x))
+}
+
+func (Compare_CompareTarget) Descriptor() protoreflect.EnumDescriptor {
+	return file_rpc_proto_enumTypes[5].Descriptor()
+}
+
+func (Compare_CompareTarget) Type() protoreflect.EnumType {
+	return &file_rpc_proto_enumTypes[5]
+}
+
+func (x Compare_CompareTarget) Number() protoreflect.EnumNumber {
+	return protoreflect.EnumNumber(x)
+}
+
+// Deprecated: Use Compare_CompareTarget.Descriptor instead.
+func (Compare_CompareTarget) EnumDescriptor() ([]byte, []int) {
+	return file_rpc_proto_rawDescGZIP(), []int{25, 1}
+}
+
 type ResponseHeader struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	ClusterId     uint64                 `protobuf:"varint,1,opt,name=cluster_id,json=clusterId,proto3" json:"cluster_id,omitempty"`
@@ -1791,6 +1898,1197 @@ func (x *LeaseTimeToLiveResponse) GetKeys() [][]byte {
 	return nil
 }
 
+type TxnRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Compare       []*Compare             `protobuf:"bytes,1,rep,name=compare,proto3" json:"compare,omitempty"`
+	Success       []*RequestOp           `protobuf:"bytes,2,rep,name=success,proto3" json:"success,omitempty"`
+	Failure       []*RequestOp           `protobuf:"bytes,3,rep,name=failure,proto3" json:"failure,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *TxnRequest) Reset() {
+	*x = TxnRequest{}
+	mi := &file_rpc_proto_msgTypes[24]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *TxnRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*TxnRequest) ProtoMessage() {}
+
+func (x *TxnRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_rpc_proto_msgTypes[24]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use TxnRequest.ProtoReflect.Descriptor instead.
+func (*TxnRequest) Descriptor() ([]byte, []int) {
+	return file_rpc_proto_rawDescGZIP(), []int{24}
+}
+
+func (x *TxnRequest) GetCompare() []*Compare {
+	if x != nil {
+		return x.Compare
+	}
+	return nil
+}
+
+func (x *TxnRequest) GetSuccess() []*RequestOp {
+	if x != nil {
+		return x.Success
+	}
+	return nil
+}
+
+func (x *TxnRequest) GetFailure() []*RequestOp {
+	if x != nil {
+		return x.Failure
+	}
+	return nil
+}
+
+type Compare struct {
+	state  protoimpl.MessageState `protogen:"open.v1"`
+	Result Compare_CompareResult  `protobuf:"varint,1,opt,name=result,proto3,enum=mykvstoreserverpb.Compare_CompareResult" json:"result,omitempty"`
+	Target Compare_CompareTarget  `protobuf:"varint,2,opt,name=target,proto3,enum=mykvstoreserverpb.Compare_CompareTarget" json:"target,omitempty"`
+	Key    []byte                 `protobuf:"bytes,3,opt,name=key,proto3" json:"key,omitempty"`
+	// target_union
+	Version        int64  `protobuf:"varint,4,opt,name=version,proto3" json:"version,omitempty"`
+	CreateRevision int64  `protobuf:"varint,5,opt,name=create_revision,json=createRevision,proto3" json:"create_revision,omitempty"`
+	ModRevision    int64  `protobuf:"varint,6,opt,name=mod_revision,json=modRevision,proto3" json:"mod_revision,omitempty"`
+	Value          []byte `protobuf:"bytes,7,opt,name=value,proto3" json:"value,omitempty"`
+	Lease          int64  `protobuf:"varint,8,opt,name=lease,proto3" json:"lease,omitempty"`
+	unknownFields  protoimpl.UnknownFields
+	sizeCache      protoimpl.SizeCache
+}
+
+func (x *Compare) Reset() {
+	*x = Compare{}
+	mi := &file_rpc_proto_msgTypes[25]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *Compare) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*Compare) ProtoMessage() {}
+
+func (x *Compare) ProtoReflect() protoreflect.Message {
+	mi := &file_rpc_proto_msgTypes[25]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use Compare.ProtoReflect.Descriptor instead.
+func (*Compare) Descriptor() ([]byte, []int) {
+	return file_rpc_proto_rawDescGZIP(), []int{25}
+}
+
+func (x *Compare) GetResult() Compare_CompareResult {
+	if x != nil {
+		return x.Result
+	}
+	return Compare_EQUAL
+}
+
+func (x *Compare) GetTarget() Compare_CompareTarget {
+	if x != nil {
+		return x.Target
+	}
+	return Compare_VERSION
+}
+
+func (x *Compare) GetKey() []byte {
+	if x != nil {
+		return x.Key
+	}
+	return nil
+}
+
+func (x *Compare) GetVersion() int64 {
+	if x != nil {
+		return x.Version
+	}
+	return 0
+}
+
+func (x *Compare) GetCreateRevision() int64 {
+	if x != nil {
+		return x.CreateRevision
+	}
+	return 0
+}
+
+func (x *Compare) GetModRevision() int64 {
+	if x != nil {
+		return x.ModRevision
+	}
+	return 0
+}
+
+func (x *Compare) GetValue() []byte {
+	if x != nil {
+		return x.Value
+	}
+	return nil
+}
+
+func (x *Compare) GetLease() int64 {
+	if x != nil {
+		return x.Lease
+	}
+	return 0
+}
+
+type RequestOp struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// Types that are valid to be assigned to Request:
+	//
+	//	*RequestOp_RequestRange
+	//	*RequestOp_RequestPut
+	//	*RequestOp_RequestDeleteRange
+	//	*RequestOp_RequestTxn
+	Request       isRequestOp_Request `protobuf_oneof:"request"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *RequestOp) Reset() {
+	*x = RequestOp{}
+	mi := &file_rpc_proto_msgTypes[26]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *RequestOp) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*RequestOp) ProtoMessage() {}
+
+func (x *RequestOp) ProtoReflect() protoreflect.Message {
+	mi := &file_rpc_proto_msgTypes[26]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use RequestOp.ProtoReflect.Descriptor instead.
+func (*RequestOp) Descriptor() ([]byte, []int) {
+	return file_rpc_proto_rawDescGZIP(), []int{26}
+}
+
+func (x *RequestOp) GetRequest() isRequestOp_Request {
+	if x != nil {
+		return x.Request
+	}
+	return nil
+}
+
+func (x *RequestOp) GetRequestRange() *RangeRequest {
+	if x != nil {
+		if x, ok := x.Request.(*RequestOp_RequestRange); ok {
+			return x.RequestRange
+		}
+	}
+	return nil
+}
+
+func (x *RequestOp) GetRequestPut() *PutRequest {
+	if x != nil {
+		if x, ok := x.Request.(*RequestOp_RequestPut); ok {
+			return x.RequestPut
+		}
+	}
+	return nil
+}
+
+func (x *RequestOp) GetRequestDeleteRange() *DeleteRangeRequest {
+	if x != nil {
+		if x, ok := x.Request.(*RequestOp_RequestDeleteRange); ok {
+			return x.RequestDeleteRange
+		}
+	}
+	return nil
+}
+
+func (x *RequestOp) GetRequestTxn() *TxnRequest {
+	if x != nil {
+		if x, ok := x.Request.(*RequestOp_RequestTxn); ok {
+			return x.RequestTxn
+		}
+	}
+	return nil
+}
+
+type isRequestOp_Request interface {
+	isRequestOp_Request()
+}
+
+type RequestOp_RequestRange struct {
+	RequestRange *RangeRequest `protobuf:"bytes,1,opt,name=request_range,json=requestRange,proto3,oneof"`
+}
+
+type RequestOp_RequestPut struct {
+	RequestPut *PutRequest `protobuf:"bytes,2,opt,name=request_put,json=requestPut,proto3,oneof"`
+}
+
+type RequestOp_RequestDeleteRange struct {
+	RequestDeleteRange *DeleteRangeRequest `protobuf:"bytes,3,opt,name=request_delete_range,json=requestDeleteRange,proto3,oneof"`
+}
+
+type RequestOp_RequestTxn struct {
+	RequestTxn *TxnRequest `protobuf:"bytes,4,opt,name=request_txn,json=requestTxn,proto3,oneof"`
+}
+
+func (*RequestOp_RequestRange) isRequestOp_Request() {}
+
+func (*RequestOp_RequestPut) isRequestOp_Request() {}
+
+func (*RequestOp_RequestDeleteRange) isRequestOp_Request() {}
+
+func (*RequestOp_RequestTxn) isRequestOp_Request() {}
+
+type TxnResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Header        *ResponseHeader        `protobuf:"bytes,1,opt,name=header,proto3" json:"header,omitempty"`
+	Succeeded     bool                   `protobuf:"varint,2,opt,name=succeeded,proto3" json:"succeeded,omitempty"`
+	Responses     []*ResponseOp          `protobuf:"bytes,3,rep,name=responses,proto3" json:"responses,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *TxnResponse) Reset() {
+	*x = TxnResponse{}
+	mi := &file_rpc_proto_msgTypes[27]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *TxnResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*TxnResponse) ProtoMessage() {}
+
+func (x *TxnResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_rpc_proto_msgTypes[27]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use TxnResponse.ProtoReflect.Descriptor instead.
+func (*TxnResponse) Descriptor() ([]byte, []int) {
+	return file_rpc_proto_rawDescGZIP(), []int{27}
+}
+
+func (x *TxnResponse) GetHeader() *ResponseHeader {
+	if x != nil {
+		return x.Header
+	}
+	return nil
+}
+
+func (x *TxnResponse) GetSucceeded() bool {
+	if x != nil {
+		return x.Succeeded
+	}
+	return false
+}
+
+func (x *TxnResponse) GetResponses() []*ResponseOp {
+	if x != nil {
+		return x.Responses
+	}
+	return nil
+}
+
+type ResponseOp struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// Types that are valid to be assigned to Response:
+	//
+	//	*ResponseOp_ResponseRange
+	//	*ResponseOp_ResponsePut
+	//	*ResponseOp_ResponseDeleteRange
+	//	*ResponseOp_ResponseTxn
+	Response      isResponseOp_Response `protobuf_oneof:"response"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ResponseOp) Reset() {
+	*x = ResponseOp{}
+	mi := &file_rpc_proto_msgTypes[28]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ResponseOp) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ResponseOp) ProtoMessage() {}
+
+func (x *ResponseOp) ProtoReflect() protoreflect.Message {
+	mi := &file_rpc_proto_msgTypes[28]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ResponseOp.ProtoReflect.Descriptor instead.
+func (*ResponseOp) Descriptor() ([]byte, []int) {
+	return file_rpc_proto_rawDescGZIP(), []int{28}
+}
+
+func (x *ResponseOp) GetResponse() isResponseOp_Response {
+	if x != nil {
+		return x.Response
+	}
+	return nil
+}
+
+func (x *ResponseOp) GetResponseRange() *RangeResponse {
+	if x != nil {
+		if x, ok := x.Response.(*ResponseOp_ResponseRange); ok {
+			return x.ResponseRange
+		}
+	}
+	return nil
+}
+
+func (x *ResponseOp) GetResponsePut() *PutResponse {
+	if x != nil {
+		if x, ok := x.Response.(*ResponseOp_ResponsePut); ok {
+			return x.ResponsePut
+		}
+	}
+	return nil
+}
+
+func (x *ResponseOp) GetResponseDeleteRange() *DeleteRangeResponse {
+	if x != nil {
+		if x, ok := x.Response.(*ResponseOp_ResponseDeleteRange); ok {
+			return x.ResponseDeleteRange
+		}
+	}
+	return nil
+}
+
+func (x *ResponseOp) GetResponseTxn() *TxnResponse {
+	if x != nil {
+		if x, ok := x.Response.(*ResponseOp_ResponseTxn); ok {
+			return x.ResponseTxn
+		}
+	}
+	return nil
+}
+
+type isResponseOp_Response interface {
+	isResponseOp_Response()
+}
+
+type ResponseOp_ResponseRange struct {
+	ResponseRange *RangeResponse `protobuf:"bytes,1,opt,name=response_range,json=responseRange,proto3,oneof"`
+}
+
+type ResponseOp_ResponsePut struct {
+	ResponsePut *PutResponse `protobuf:"bytes,2,opt,name=response_put,json=responsePut,proto3,oneof"`
+}
+
+type ResponseOp_ResponseDeleteRange struct {
+	ResponseDeleteRange *DeleteRangeResponse `protobuf:"bytes,3,opt,name=response_delete_range,json=responseDeleteRange,proto3,oneof"`
+}
+
+type ResponseOp_ResponseTxn struct {
+	ResponseTxn *TxnResponse `protobuf:"bytes,4,opt,name=response_txn,json=responseTxn,proto3,oneof"`
+}
+
+func (*ResponseOp_ResponseRange) isResponseOp_Response() {}
+
+func (*ResponseOp_ResponsePut) isResponseOp_Response() {}
+
+func (*ResponseOp_ResponseDeleteRange) isResponseOp_Response() {}
+
+func (*ResponseOp_ResponseTxn) isResponseOp_Response() {}
+
+type Member struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	ID            uint64                 `protobuf:"varint,1,opt,name=ID,proto3" json:"ID,omitempty"`
+	Name          string                 `protobuf:"bytes,2,opt,name=name,proto3" json:"name,omitempty"`
+	PeerURLs      []string               `protobuf:"bytes,3,rep,name=peerURLs,proto3" json:"peerURLs,omitempty"`
+	ClientURLs    []string               `protobuf:"bytes,4,rep,name=clientURLs,proto3" json:"clientURLs,omitempty"`
+	IsLearner     bool                   `protobuf:"varint,5,opt,name=isLearner,proto3" json:"isLearner,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *Member) Reset() {
+	*x = Member{}
+	mi := &file_rpc_proto_msgTypes[29]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *Member) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*Member) ProtoMessage() {}
+
+func (x *Member) ProtoReflect() protoreflect.Message {
+	mi := &file_rpc_proto_msgTypes[29]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use Member.ProtoReflect.Descriptor instead.
+func (*Member) Descriptor() ([]byte, []int) {
+	return file_rpc_proto_rawDescGZIP(), []int{29}
+}
+
+func (x *Member) GetID() uint64 {
+	if x != nil {
+		return x.ID
+	}
+	return 0
+}
+
+func (x *Member) GetName() string {
+	if x != nil {
+		return x.Name
+	}
+	return ""
+}
+
+func (x *Member) GetPeerURLs() []string {
+	if x != nil {
+		return x.PeerURLs
+	}
+	return nil
+}
+
+func (x *Member) GetClientURLs() []string {
+	if x != nil {
+		return x.ClientURLs
+	}
+	return nil
+}
+
+func (x *Member) GetIsLearner() bool {
+	if x != nil {
+		return x.IsLearner
+	}
+	return false
+}
+
+type MemberAddRequest struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// peerURLs is the list of URLs the added member will use to communicate with the cluster
+	PeerURLs []string `protobuf:"bytes,1,rep,name=peerURLs,proto3" json:"peerURLs,omitempty"`
+	// isLearner indicates if added member is a raft learner
+	IsLearner     bool `protobuf:"varint,2,opt,name=isLearner,proto3" json:"isLearner,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *MemberAddRequest) Reset() {
+	*x = MemberAddRequest{}
+	mi := &file_rpc_proto_msgTypes[30]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *MemberAddRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*MemberAddRequest) ProtoMessage() {}
+
+func (x *MemberAddRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_rpc_proto_msgTypes[30]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use MemberAddRequest.ProtoReflect.Descriptor instead.
+func (*MemberAddRequest) Descriptor() ([]byte, []int) {
+	return file_rpc_proto_rawDescGZIP(), []int{30}
+}
+
+func (x *MemberAddRequest) GetPeerURLs() []string {
+	if x != nil {
+		return x.PeerURLs
+	}
+	return nil
+}
+
+func (x *MemberAddRequest) GetIsLearner() bool {
+	if x != nil {
+		return x.IsLearner
+	}
+	return false
+}
+
+type MemberAddResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Header        *ResponseHeader        `protobuf:"bytes,1,opt,name=header,proto3" json:"header,omitempty"`
+	Member        *Member                `protobuf:"bytes,2,opt,name=member,proto3" json:"member,omitempty"`
+	Members       []*Member              `protobuf:"bytes,3,rep,name=members,proto3" json:"members,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *MemberAddResponse) Reset() {
+	*x = MemberAddResponse{}
+	mi := &file_rpc_proto_msgTypes[31]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *MemberAddResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*MemberAddResponse) ProtoMessage() {}
+
+func (x *MemberAddResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_rpc_proto_msgTypes[31]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use MemberAddResponse.ProtoReflect.Descriptor instead.
+func (*MemberAddResponse) Descriptor() ([]byte, []int) {
+	return file_rpc_proto_rawDescGZIP(), []int{31}
+}
+
+func (x *MemberAddResponse) GetHeader() *ResponseHeader {
+	if x != nil {
+		return x.Header
+	}
+	return nil
+}
+
+func (x *MemberAddResponse) GetMember() *Member {
+	if x != nil {
+		return x.Member
+	}
+	return nil
+}
+
+func (x *MemberAddResponse) GetMembers() []*Member {
+	if x != nil {
+		return x.Members
+	}
+	return nil
+}
+
+type MemberRemoveRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	ID            uint64                 `protobuf:"varint,1,opt,name=ID,proto3" json:"ID,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *MemberRemoveRequest) Reset() {
+	*x = MemberRemoveRequest{}
+	mi := &file_rpc_proto_msgTypes[32]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *MemberRemoveRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*MemberRemoveRequest) ProtoMessage() {}
+
+func (x *MemberRemoveRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_rpc_proto_msgTypes[32]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use MemberRemoveRequest.ProtoReflect.Descriptor instead.
+func (*MemberRemoveRequest) Descriptor() ([]byte, []int) {
+	return file_rpc_proto_rawDescGZIP(), []int{32}
+}
+
+func (x *MemberRemoveRequest) GetID() uint64 {
+	if x != nil {
+		return x.ID
+	}
+	return 0
+}
+
+type MemberRemoveResponse struct {
+	state  protoimpl.MessageState `protogen:"open.v1"`
+	Header *ResponseHeader        `protobuf:"bytes,1,opt,name=header,proto3" json:"header,omitempty"`
+	// member is a list of all members after removing the member
+	Members       []*Member `protobuf:"bytes,2,rep,name=members,proto3" json:"members,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *MemberRemoveResponse) Reset() {
+	*x = MemberRemoveResponse{}
+	mi := &file_rpc_proto_msgTypes[33]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *MemberRemoveResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*MemberRemoveResponse) ProtoMessage() {}
+
+func (x *MemberRemoveResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_rpc_proto_msgTypes[33]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use MemberRemoveResponse.ProtoReflect.Descriptor instead.
+func (*MemberRemoveResponse) Descriptor() ([]byte, []int) {
+	return file_rpc_proto_rawDescGZIP(), []int{33}
+}
+
+func (x *MemberRemoveResponse) GetHeader() *ResponseHeader {
+	if x != nil {
+		return x.Header
+	}
+	return nil
+}
+
+func (x *MemberRemoveResponse) GetMembers() []*Member {
+	if x != nil {
+		return x.Members
+	}
+	return nil
+}
+
+type MemberUpdateRequest struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	ID    uint64                 `protobuf:"varint,1,opt,name=ID,proto3" json:"ID,omitempty"`
+	// peerURLs is the new list of URLs the member will use to communicate with the cluster
+	PeerURLs      []string `protobuf:"bytes,2,rep,name=peerURLs,proto3" json:"peerURLs,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *MemberUpdateRequest) Reset() {
+	*x = MemberUpdateRequest{}
+	mi := &file_rpc_proto_msgTypes[34]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *MemberUpdateRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*MemberUpdateRequest) ProtoMessage() {}
+
+func (x *MemberUpdateRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_rpc_proto_msgTypes[34]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use MemberUpdateRequest.ProtoReflect.Descriptor instead.
+func (*MemberUpdateRequest) Descriptor() ([]byte, []int) {
+	return file_rpc_proto_rawDescGZIP(), []int{34}
+}
+
+func (x *MemberUpdateRequest) GetID() uint64 {
+	if x != nil {
+		return x.ID
+	}
+	return 0
+}
+
+func (x *MemberUpdateRequest) GetPeerURLs() []string {
+	if x != nil {
+		return x.PeerURLs
+	}
+	return nil
+}
+
+type MemberUpdateResponse struct {
+	state  protoimpl.MessageState `protogen:"open.v1"`
+	Header *ResponseHeader        `protobuf:"bytes,1,opt,name=header,proto3" json:"header,omitempty"`
+	// members is a list of all members after updating the member
+	Members       []*Member `protobuf:"bytes,2,rep,name=members,proto3" json:"members,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *MemberUpdateResponse) Reset() {
+	*x = MemberUpdateResponse{}
+	mi := &file_rpc_proto_msgTypes[35]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *MemberUpdateResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*MemberUpdateResponse) ProtoMessage() {}
+
+func (x *MemberUpdateResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_rpc_proto_msgTypes[35]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use MemberUpdateResponse.ProtoReflect.Descriptor instead.
+func (*MemberUpdateResponse) Descriptor() ([]byte, []int) {
+	return file_rpc_proto_rawDescGZIP(), []int{35}
+}
+
+func (x *MemberUpdateResponse) GetHeader() *ResponseHeader {
+	if x != nil {
+		return x.Header
+	}
+	return nil
+}
+
+func (x *MemberUpdateResponse) GetMembers() []*Member {
+	if x != nil {
+		return x.Members
+	}
+	return nil
+}
+
+type MemberListRequest struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// Linearizable requires quorum read, non-linearizable is from local data
+	Linearizable  bool `protobuf:"varint,1,opt,name=linearizable,proto3" json:"linearizable,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *MemberListRequest) Reset() {
+	*x = MemberListRequest{}
+	mi := &file_rpc_proto_msgTypes[36]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *MemberListRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*MemberListRequest) ProtoMessage() {}
+
+func (x *MemberListRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_rpc_proto_msgTypes[36]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use MemberListRequest.ProtoReflect.Descriptor instead.
+func (*MemberListRequest) Descriptor() ([]byte, []int) {
+	return file_rpc_proto_rawDescGZIP(), []int{36}
+}
+
+func (x *MemberListRequest) GetLinearizable() bool {
+	if x != nil {
+		return x.Linearizable
+	}
+	return false
+}
+
+type MemberListResponse struct {
+	state  protoimpl.MessageState `protogen:"open.v1"`
+	Header *ResponseHeader        `protobuf:"bytes,1,opt,name=header,proto3" json:"header,omitempty"`
+	// list of members associated with the cluster
+	Members       []*Member `protobuf:"bytes,2,rep,name=members,proto3" json:"members,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *MemberListResponse) Reset() {
+	*x = MemberListResponse{}
+	mi := &file_rpc_proto_msgTypes[37]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *MemberListResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*MemberListResponse) ProtoMessage() {}
+
+func (x *MemberListResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_rpc_proto_msgTypes[37]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use MemberListResponse.ProtoReflect.Descriptor instead.
+func (*MemberListResponse) Descriptor() ([]byte, []int) {
+	return file_rpc_proto_rawDescGZIP(), []int{37}
+}
+
+func (x *MemberListResponse) GetHeader() *ResponseHeader {
+	if x != nil {
+		return x.Header
+	}
+	return nil
+}
+
+func (x *MemberListResponse) GetMembers() []*Member {
+	if x != nil {
+		return x.Members
+	}
+	return nil
+}
+
+type MemberPromoteRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	ID            uint64                 `protobuf:"varint,1,opt,name=ID,proto3" json:"ID,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *MemberPromoteRequest) Reset() {
+	*x = MemberPromoteRequest{}
+	mi := &file_rpc_proto_msgTypes[38]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *MemberPromoteRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*MemberPromoteRequest) ProtoMessage() {}
+
+func (x *MemberPromoteRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_rpc_proto_msgTypes[38]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use MemberPromoteRequest.ProtoReflect.Descriptor instead.
+func (*MemberPromoteRequest) Descriptor() ([]byte, []int) {
+	return file_rpc_proto_rawDescGZIP(), []int{38}
+}
+
+func (x *MemberPromoteRequest) GetID() uint64 {
+	if x != nil {
+		return x.ID
+	}
+	return 0
+}
+
+type MemberPromoteResponse struct {
+	state  protoimpl.MessageState `protogen:"open.v1"`
+	Header *ResponseHeader        `protobuf:"bytes,1,opt,name=header,proto3" json:"header,omitempty"`
+	// members is a list of all members after promoting the member
+	Members       []*Member `protobuf:"bytes,2,rep,name=members,proto3" json:"members,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *MemberPromoteResponse) Reset() {
+	*x = MemberPromoteResponse{}
+	mi := &file_rpc_proto_msgTypes[39]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *MemberPromoteResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*MemberPromoteResponse) ProtoMessage() {}
+
+func (x *MemberPromoteResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_rpc_proto_msgTypes[39]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use MemberPromoteResponse.ProtoReflect.Descriptor instead.
+func (*MemberPromoteResponse) Descriptor() ([]byte, []int) {
+	return file_rpc_proto_rawDescGZIP(), []int{39}
+}
+
+func (x *MemberPromoteResponse) GetHeader() *ResponseHeader {
+	if x != nil {
+		return x.Header
+	}
+	return nil
+}
+
+func (x *MemberPromoteResponse) GetMembers() []*Member {
+	if x != nil {
+		return x.Members
+	}
+	return nil
+}
+
+type StatusRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *StatusRequest) Reset() {
+	*x = StatusRequest{}
+	mi := &file_rpc_proto_msgTypes[40]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *StatusRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*StatusRequest) ProtoMessage() {}
+
+func (x *StatusRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_rpc_proto_msgTypes[40]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use StatusRequest.ProtoReflect.Descriptor instead.
+func (*StatusRequest) Descriptor() ([]byte, []int) {
+	return file_rpc_proto_rawDescGZIP(), []int{40}
+}
+
+type StatusResponse struct {
+	state  protoimpl.MessageState `protogen:"open.v1"`
+	Header *ResponseHeader        `protobuf:"bytes,1,opt,name=header,proto3" json:"header,omitempty"`
+	// version is the cluster protocol version used by the responding member
+	Version string `protobuf:"bytes,2,opt,name=version,proto3" json:"version,omitempty"`
+	// dbSize is the size of the backend database physically allocated, in bytes
+	DbSize           int64    `protobuf:"varint,3,opt,name=dbSize,proto3" json:"dbSize,omitempty"`
+	Leader           uint64   `protobuf:"varint,4,opt,name=leader,proto3" json:"leader,omitempty"`
+	RaftIndex        uint64   `protobuf:"varint,5,opt,name=raftIndex,proto3" json:"raftIndex,omitempty"`
+	RaftTerm         uint64   `protobuf:"varint,6,opt,name=raftTerm,proto3" json:"raftTerm,omitempty"`
+	RaftAppliedIndex uint64   `protobuf:"varint,7,opt,name=raftAppliedIndex,proto3" json:"raftAppliedIndex,omitempty"`
+	Errors           []string `protobuf:"bytes,8,rep,name=errors,proto3" json:"errors,omitempty"`
+	DbSizeInUse      int64    `protobuf:"varint,9,opt,name=dbSizeInUse,proto3" json:"dbSizeInUse,omitempty"`
+	IsLearner        bool     `protobuf:"varint,10,opt,name=isLearner,proto3" json:"isLearner,omitempty"`
+	unknownFields    protoimpl.UnknownFields
+	sizeCache        protoimpl.SizeCache
+}
+
+func (x *StatusResponse) Reset() {
+	*x = StatusResponse{}
+	mi := &file_rpc_proto_msgTypes[41]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *StatusResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*StatusResponse) ProtoMessage() {}
+
+func (x *StatusResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_rpc_proto_msgTypes[41]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use StatusResponse.ProtoReflect.Descriptor instead.
+func (*StatusResponse) Descriptor() ([]byte, []int) {
+	return file_rpc_proto_rawDescGZIP(), []int{41}
+}
+
+func (x *StatusResponse) GetHeader() *ResponseHeader {
+	if x != nil {
+		return x.Header
+	}
+	return nil
+}
+
+func (x *StatusResponse) GetVersion() string {
+	if x != nil {
+		return x.Version
+	}
+	return ""
+}
+
+func (x *StatusResponse) GetDbSize() int64 {
+	if x != nil {
+		return x.DbSize
+	}
+	return 0
+}
+
+func (x *StatusResponse) GetLeader() uint64 {
+	if x != nil {
+		return x.Leader
+	}
+	return 0
+}
+
+func (x *StatusResponse) GetRaftIndex() uint64 {
+	if x != nil {
+		return x.RaftIndex
+	}
+	return 0
+}
+
+func (x *StatusResponse) GetRaftTerm() uint64 {
+	if x != nil {
+		return x.RaftTerm
+	}
+	return 0
+}
+
+func (x *StatusResponse) GetRaftAppliedIndex() uint64 {
+	if x != nil {
+		return x.RaftAppliedIndex
+	}
+	return 0
+}
+
+func (x *StatusResponse) GetErrors() []string {
+	if x != nil {
+		return x.Errors
+	}
+	return nil
+}
+
+func (x *StatusResponse) GetDbSizeInUse() int64 {
+	if x != nil {
+		return x.DbSizeInUse
+	}
+	return 0
+}
+
+func (x *StatusResponse) GetIsLearner() bool {
+	if x != nil {
+		return x.IsLearner
+	}
+	return false
+}
+
 var File_rpc_proto protoreflect.FileDescriptor
 
 const file_rpc_proto_rawDesc = "" +
@@ -1933,11 +3231,108 @@ const file_rpc_proto_rawDesc = "" +
 	"\n" +
 	"grantedTTL\x18\x04 \x01(\x03R\n" +
 	"grantedTTL\x12\x12\n" +
-	"\x04keys\x18\x05 \x03(\fR\x04keys2\xd4\x02\n" +
+	"\x04keys\x18\x05 \x03(\fR\x04keys\"\xb2\x01\n" +
+	"\n" +
+	"TxnRequest\x124\n" +
+	"\acompare\x18\x01 \x03(\v2\x1a.mykvstoreserverpb.CompareR\acompare\x126\n" +
+	"\asuccess\x18\x02 \x03(\v2\x1c.mykvstoreserverpb.RequestOpR\asuccess\x126\n" +
+	"\afailure\x18\x03 \x03(\v2\x1c.mykvstoreserverpb.RequestOpR\afailure\"\xbb\x03\n" +
+	"\aCompare\x12@\n" +
+	"\x06result\x18\x01 \x01(\x0e2(.mykvstoreserverpb.Compare.CompareResultR\x06result\x12@\n" +
+	"\x06target\x18\x02 \x01(\x0e2(.mykvstoreserverpb.Compare.CompareTargetR\x06target\x12\x10\n" +
+	"\x03key\x18\x03 \x01(\fR\x03key\x12\x18\n" +
+	"\aversion\x18\x04 \x01(\x03R\aversion\x12'\n" +
+	"\x0fcreate_revision\x18\x05 \x01(\x03R\x0ecreateRevision\x12!\n" +
+	"\fmod_revision\x18\x06 \x01(\x03R\vmodRevision\x12\x14\n" +
+	"\x05value\x18\a \x01(\fR\x05value\x12\x14\n" +
+	"\x05lease\x18\b \x01(\x03R\x05lease\"?\n" +
+	"\rCompareResult\x12\t\n" +
+	"\x05EQUAL\x10\x00\x12\n" +
+	"\n" +
+	"\x06GRATER\x10\x01\x12\b\n" +
+	"\x04LESS\x10\x02\x12\r\n" +
+	"\tNOT_EQUAL\x10\x03\"G\n" +
+	"\rCompareTarget\x12\v\n" +
+	"\aVERSION\x10\x00\x12\n" +
+	"\n" +
+	"\x06CREATE\x10\x01\x12\a\n" +
+	"\x03MOD\x10\x02\x12\t\n" +
+	"\x05VALUE\x10\x03\x12\t\n" +
+	"\x05LEASE\x10\x04\"\xbd\x02\n" +
+	"\tRequestOp\x12F\n" +
+	"\rrequest_range\x18\x01 \x01(\v2\x1f.mykvstoreserverpb.RangeRequestH\x00R\frequestRange\x12@\n" +
+	"\vrequest_put\x18\x02 \x01(\v2\x1d.mykvstoreserverpb.PutRequestH\x00R\n" +
+	"requestPut\x12Y\n" +
+	"\x14request_delete_range\x18\x03 \x01(\v2%.mykvstoreserverpb.DeleteRangeRequestH\x00R\x12requestDeleteRange\x12@\n" +
+	"\vrequest_txn\x18\x04 \x01(\v2\x1d.mykvstoreserverpb.TxnRequestH\x00R\n" +
+	"requestTxnB\t\n" +
+	"\arequest\"\xa3\x01\n" +
+	"\vTxnResponse\x129\n" +
+	"\x06header\x18\x01 \x01(\v2!.mykvstoreserverpb.ResponseHeaderR\x06header\x12\x1c\n" +
+	"\tsucceeded\x18\x02 \x01(\bR\tsucceeded\x12;\n" +
+	"\tresponses\x18\x03 \x03(\v2\x1d.mykvstoreserverpb.ResponseOpR\tresponses\"\xcb\x02\n" +
+	"\n" +
+	"ResponseOp\x12I\n" +
+	"\x0eresponse_range\x18\x01 \x01(\v2 .mykvstoreserverpb.RangeResponseH\x00R\rresponseRange\x12C\n" +
+	"\fresponse_put\x18\x02 \x01(\v2\x1e.mykvstoreserverpb.PutResponseH\x00R\vresponsePut\x12\\\n" +
+	"\x15response_delete_range\x18\x03 \x01(\v2&.mykvstoreserverpb.DeleteRangeResponseH\x00R\x13responseDeleteRange\x12C\n" +
+	"\fresponse_txn\x18\x04 \x01(\v2\x1e.mykvstoreserverpb.TxnResponseH\x00R\vresponseTxnB\n" +
+	"\n" +
+	"\bresponse\"\x86\x01\n" +
+	"\x06Member\x12\x0e\n" +
+	"\x02ID\x18\x01 \x01(\x04R\x02ID\x12\x12\n" +
+	"\x04name\x18\x02 \x01(\tR\x04name\x12\x1a\n" +
+	"\bpeerURLs\x18\x03 \x03(\tR\bpeerURLs\x12\x1e\n" +
+	"\n" +
+	"clientURLs\x18\x04 \x03(\tR\n" +
+	"clientURLs\x12\x1c\n" +
+	"\tisLearner\x18\x05 \x01(\bR\tisLearner\"L\n" +
+	"\x10MemberAddRequest\x12\x1a\n" +
+	"\bpeerURLs\x18\x01 \x03(\tR\bpeerURLs\x12\x1c\n" +
+	"\tisLearner\x18\x02 \x01(\bR\tisLearner\"\xb6\x01\n" +
+	"\x11MemberAddResponse\x129\n" +
+	"\x06header\x18\x01 \x01(\v2!.mykvstoreserverpb.ResponseHeaderR\x06header\x121\n" +
+	"\x06member\x18\x02 \x01(\v2\x19.mykvstoreserverpb.MemberR\x06member\x123\n" +
+	"\amembers\x18\x03 \x03(\v2\x19.mykvstoreserverpb.MemberR\amembers\"%\n" +
+	"\x13MemberRemoveRequest\x12\x0e\n" +
+	"\x02ID\x18\x01 \x01(\x04R\x02ID\"\x86\x01\n" +
+	"\x14MemberRemoveResponse\x129\n" +
+	"\x06header\x18\x01 \x01(\v2!.mykvstoreserverpb.ResponseHeaderR\x06header\x123\n" +
+	"\amembers\x18\x02 \x03(\v2\x19.mykvstoreserverpb.MemberR\amembers\"A\n" +
+	"\x13MemberUpdateRequest\x12\x0e\n" +
+	"\x02ID\x18\x01 \x01(\x04R\x02ID\x12\x1a\n" +
+	"\bpeerURLs\x18\x02 \x03(\tR\bpeerURLs\"\x86\x01\n" +
+	"\x14MemberUpdateResponse\x129\n" +
+	"\x06header\x18\x01 \x01(\v2!.mykvstoreserverpb.ResponseHeaderR\x06header\x123\n" +
+	"\amembers\x18\x02 \x03(\v2\x19.mykvstoreserverpb.MemberR\amembers\"7\n" +
+	"\x11MemberListRequest\x12\"\n" +
+	"\flinearizable\x18\x01 \x01(\bR\flinearizable\"\x84\x01\n" +
+	"\x12MemberListResponse\x129\n" +
+	"\x06header\x18\x01 \x01(\v2!.mykvstoreserverpb.ResponseHeaderR\x06header\x123\n" +
+	"\amembers\x18\x02 \x03(\v2\x19.mykvstoreserverpb.MemberR\amembers\"&\n" +
+	"\x14MemberPromoteRequest\x12\x0e\n" +
+	"\x02ID\x18\x01 \x01(\x04R\x02ID\"\x87\x01\n" +
+	"\x15MemberPromoteResponse\x129\n" +
+	"\x06header\x18\x01 \x01(\v2!.mykvstoreserverpb.ResponseHeaderR\x06header\x123\n" +
+	"\amembers\x18\x02 \x03(\v2\x19.mykvstoreserverpb.MemberR\amembers\"\x0f\n" +
+	"\rStatusRequest\"\xd3\x02\n" +
+	"\x0eStatusResponse\x129\n" +
+	"\x06header\x18\x01 \x01(\v2!.mykvstoreserverpb.ResponseHeaderR\x06header\x12\x18\n" +
+	"\aversion\x18\x02 \x01(\tR\aversion\x12\x16\n" +
+	"\x06dbSize\x18\x03 \x01(\x03R\x06dbSize\x12\x16\n" +
+	"\x06leader\x18\x04 \x01(\x04R\x06leader\x12\x1c\n" +
+	"\traftIndex\x18\x05 \x01(\x04R\traftIndex\x12\x1a\n" +
+	"\braftTerm\x18\x06 \x01(\x04R\braftTerm\x12*\n" +
+	"\x10raftAppliedIndex\x18\a \x01(\x04R\x10raftAppliedIndex\x12\x16\n" +
+	"\x06errors\x18\b \x03(\tR\x06errors\x12 \n" +
+	"\vdbSizeInUse\x18\t \x01(\x03R\vdbSizeInUse\x12\x1c\n" +
+	"\tisLearner\x18\n" +
+	" \x01(\bR\tisLearner2\x9c\x03\n" +
 	"\x02KV\x12L\n" +
 	"\x05Range\x12\x1f.mykvstoreserverpb.RangeRequest\x1a .mykvstoreserverpb.RangeResponse\"\x00\x12F\n" +
 	"\x03Put\x12\x1d.mykvstoreserverpb.PutRequest\x1a\x1e.mykvstoreserverpb.PutResponse\"\x00\x12^\n" +
-	"\vDeleteRange\x12%.mykvstoreserverpb.DeleteRangeRequest\x1a&.mykvstoreserverpb.DeleteRangeResponse\"\x00\x12X\n" +
+	"\vDeleteRange\x12%.mykvstoreserverpb.DeleteRangeRequest\x1a&.mykvstoreserverpb.DeleteRangeResponse\"\x00\x12F\n" +
+	"\x03Txn\x12\x1d.mykvstoreserverpb.TxnRequest\x1a\x1e.mykvstoreserverpb.TxnResponse\"\x00\x12X\n" +
 	"\aCompact\x12$.mykvstoreserverpb.CompactionRequest\x1a%.mykvstoreserverpb.CompactionResponse\"\x002Y\n" +
 	"\x05Watch\x12P\n" +
 	"\x05Watch\x12\x1f.mykvstoreserverpb.WatchRequest\x1a .mykvstoreserverpb.WatchResponse\"\x00(\x010\x012\x9d\x03\n" +
@@ -1946,7 +3341,16 @@ const file_rpc_proto_rawDesc = "" +
 	"LeaseGrant\x12$.mykvstoreserverpb.LeaseGrantRequest\x1a%.mykvstoreserverpb.LeaseGrantResponse\"\x00\x12^\n" +
 	"\vLeaseRevoke\x12%.mykvstoreserverpb.LeaseRevokeRequest\x1a&.mykvstoreserverpb.LeaseRevokeResponse\"\x00\x12k\n" +
 	"\x0eLeaseKeepAlive\x12(.mykvstoreserverpb.LeaseKeepAliveRequest\x1a).mykvstoreserverpb.LeaseKeepAliveResponse\"\x00(\x010\x01\x12j\n" +
-	"\x0fLeaseTimeToLive\x12).mykvstoreserverpb.LeaseTimeToLiveRequest\x1a*.mykvstoreserverpb.LeaseTimeToLiveResponse\"\x00B\x16Z\x14./;mykvstoreserverpbb\x06proto3"
+	"\x0fLeaseTimeToLive\x12).mykvstoreserverpb.LeaseTimeToLiveRequest\x1a*.mykvstoreserverpb.LeaseTimeToLiveResponse\"\x002\xec\x03\n" +
+	"\aCluster\x12X\n" +
+	"\tMemberAdd\x12#.mykvstoreserverpb.MemberAddRequest\x1a$.mykvstoreserverpb.MemberAddResponse\"\x00\x12a\n" +
+	"\fMemberRemove\x12&.mykvstoreserverpb.MemberRemoveRequest\x1a'.mykvstoreserverpb.MemberRemoveResponse\"\x00\x12a\n" +
+	"\fMemberUpdate\x12&.mykvstoreserverpb.MemberUpdateRequest\x1a'.mykvstoreserverpb.MemberUpdateResponse\"\x00\x12[\n" +
+	"\n" +
+	"MemberList\x12$.mykvstoreserverpb.MemberListRequest\x1a%.mykvstoreserverpb.MemberListResponse\"\x00\x12d\n" +
+	"\rMemberPromote\x12'.mykvstoreserverpb.MemberPromoteRequest\x1a(.mykvstoreserverpb.MemberPromoteResponse\"\x002^\n" +
+	"\vMaintenance\x12O\n" +
+	"\x06Status\x12 .mykvstoreserverpb.StatusRequest\x1a!.mykvstoreserverpb.StatusResponse\"\x00B\x16Z\x14./;mykvstoreserverpbb\x06proto3"
 
 var (
 	file_rpc_proto_rawDescOnce sync.Once
@@ -1960,84 +3364,145 @@ func file_rpc_proto_rawDescGZIP() []byte {
 	return file_rpc_proto_rawDescData
 }
 
-var file_rpc_proto_enumTypes = make([]protoimpl.EnumInfo, 4)
-var file_rpc_proto_msgTypes = make([]protoimpl.MessageInfo, 24)
+var file_rpc_proto_enumTypes = make([]protoimpl.EnumInfo, 6)
+var file_rpc_proto_msgTypes = make([]protoimpl.MessageInfo, 42)
 var file_rpc_proto_goTypes = []any{
 	(WatchCreateRequest_FilterType)(0), // 0: mykvstoreserverpb.WatchCreateRequest.FilterType
 	(Event_EventType)(0),               // 1: mykvstoreserverpb.Event.EventType
 	(RangeRequest_SortOrder)(0),        // 2: mykvstoreserverpb.RangeRequest.SortOrder
 	(RangeRequest_SortTarget)(0),       // 3: mykvstoreserverpb.RangeRequest.SortTarget
-	(*ResponseHeader)(nil),             // 4: mykvstoreserverpb.ResponseHeader
-	(*KeyValue)(nil),                   // 5: mykvstoreserverpb.KeyValue
-	(*PutRequest)(nil),                 // 6: mykvstoreserverpb.PutRequest
-	(*PutResponse)(nil),                // 7: mykvstoreserverpb.PutResponse
-	(*WatchRequest)(nil),               // 8: mykvstoreserverpb.WatchRequest
-	(*WatchCreateRequest)(nil),         // 9: mykvstoreserverpb.WatchCreateRequest
-	(*WatchCancelRequest)(nil),         // 10: mykvstoreserverpb.WatchCancelRequest
-	(*WatchProgressRequest)(nil),       // 11: mykvstoreserverpb.WatchProgressRequest
-	(*WatchResponse)(nil),              // 12: mykvstoreserverpb.WatchResponse
-	(*Event)(nil),                      // 13: mykvstoreserverpb.Event
-	(*RangeRequest)(nil),               // 14: mykvstoreserverpb.RangeRequest
-	(*RangeResponse)(nil),              // 15: mykvstoreserverpb.RangeResponse
-	(*DeleteRangeRequest)(nil),         // 16: mykvstoreserverpb.DeleteRangeRequest
-	(*DeleteRangeResponse)(nil),        // 17: mykvstoreserverpb.DeleteRangeResponse
-	(*CompactionRequest)(nil),          // 18: mykvstoreserverpb.CompactionRequest
-	(*CompactionResponse)(nil),         // 19: mykvstoreserverpb.CompactionResponse
-	(*LeaseGrantRequest)(nil),          // 20: mykvstoreserverpb.LeaseGrantRequest
-	(*LeaseGrantResponse)(nil),         // 21: mykvstoreserverpb.LeaseGrantResponse
-	(*LeaseRevokeRequest)(nil),         // 22: mykvstoreserverpb.LeaseRevokeRequest
-	(*LeaseRevokeResponse)(nil),        // 23: mykvstoreserverpb.LeaseRevokeResponse
-	(*LeaseKeepAliveRequest)(nil),      // 24: mykvstoreserverpb.LeaseKeepAliveRequest
-	(*LeaseKeepAliveResponse)(nil),     // 25: mykvstoreserverpb.LeaseKeepAliveResponse
-	(*LeaseTimeToLiveRequest)(nil),     // 26: mykvstoreserverpb.LeaseTimeToLiveRequest
-	(*LeaseTimeToLiveResponse)(nil),    // 27: mykvstoreserverpb.LeaseTimeToLiveResponse
+	(Compare_CompareResult)(0),         // 4: mykvstoreserverpb.Compare.CompareResult
+	(Compare_CompareTarget)(0),         // 5: mykvstoreserverpb.Compare.CompareTarget
+	(*ResponseHeader)(nil),             // 6: mykvstoreserverpb.ResponseHeader
+	(*KeyValue)(nil),                   // 7: mykvstoreserverpb.KeyValue
+	(*PutRequest)(nil),                 // 8: mykvstoreserverpb.PutRequest
+	(*PutResponse)(nil),                // 9: mykvstoreserverpb.PutResponse
+	(*WatchRequest)(nil),               // 10: mykvstoreserverpb.WatchRequest
+	(*WatchCreateRequest)(nil),         // 11: mykvstoreserverpb.WatchCreateRequest
+	(*WatchCancelRequest)(nil),         // 12: mykvstoreserverpb.WatchCancelRequest
+	(*WatchProgressRequest)(nil),       // 13: mykvstoreserverpb.WatchProgressRequest
+	(*WatchResponse)(nil),              // 14: mykvstoreserverpb.WatchResponse
+	(*Event)(nil),                      // 15: mykvstoreserverpb.Event
+	(*RangeRequest)(nil),               // 16: mykvstoreserverpb.RangeRequest
+	(*RangeResponse)(nil),              // 17: mykvstoreserverpb.RangeResponse
+	(*DeleteRangeRequest)(nil),         // 18: mykvstoreserverpb.DeleteRangeRequest
+	(*DeleteRangeResponse)(nil),        // 19: mykvstoreserverpb.DeleteRangeResponse
+	(*CompactionRequest)(nil),          // 20: mykvstoreserverpb.CompactionRequest
+	(*CompactionResponse)(nil),         // 21: mykvstoreserverpb.CompactionResponse
+	(*LeaseGrantRequest)(nil),          // 22: mykvstoreserverpb.LeaseGrantRequest
+	(*LeaseGrantResponse)(nil),         // 23: mykvstoreserverpb.LeaseGrantResponse
+	(*LeaseRevokeRequest)(nil),         // 24: mykvstoreserverpb.LeaseRevokeRequest
+	(*LeaseRevokeResponse)(nil),        // 25: mykvstoreserverpb.LeaseRevokeResponse
+	(*LeaseKeepAliveRequest)(nil),      // 26: mykvstoreserverpb.LeaseKeepAliveRequest
+	(*LeaseKeepAliveResponse)(nil),     // 27: mykvstoreserverpb.LeaseKeepAliveResponse
+	(*LeaseTimeToLiveRequest)(nil),     // 28: mykvstoreserverpb.LeaseTimeToLiveRequest
+	(*LeaseTimeToLiveResponse)(nil),    // 29: mykvstoreserverpb.LeaseTimeToLiveResponse
+	(*TxnRequest)(nil),                 // 30: mykvstoreserverpb.TxnRequest
+	(*Compare)(nil),                    // 31: mykvstoreserverpb.Compare
+	(*RequestOp)(nil),                  // 32: mykvstoreserverpb.RequestOp
+	(*TxnResponse)(nil),                // 33: mykvstoreserverpb.TxnResponse
+	(*ResponseOp)(nil),                 // 34: mykvstoreserverpb.ResponseOp
+	(*Member)(nil),                     // 35: mykvstoreserverpb.Member
+	(*MemberAddRequest)(nil),           // 36: mykvstoreserverpb.MemberAddRequest
+	(*MemberAddResponse)(nil),          // 37: mykvstoreserverpb.MemberAddResponse
+	(*MemberRemoveRequest)(nil),        // 38: mykvstoreserverpb.MemberRemoveRequest
+	(*MemberRemoveResponse)(nil),       // 39: mykvstoreserverpb.MemberRemoveResponse
+	(*MemberUpdateRequest)(nil),        // 40: mykvstoreserverpb.MemberUpdateRequest
+	(*MemberUpdateResponse)(nil),       // 41: mykvstoreserverpb.MemberUpdateResponse
+	(*MemberListRequest)(nil),          // 42: mykvstoreserverpb.MemberListRequest
+	(*MemberListResponse)(nil),         // 43: mykvstoreserverpb.MemberListResponse
+	(*MemberPromoteRequest)(nil),       // 44: mykvstoreserverpb.MemberPromoteRequest
+	(*MemberPromoteResponse)(nil),      // 45: mykvstoreserverpb.MemberPromoteResponse
+	(*StatusRequest)(nil),              // 46: mykvstoreserverpb.StatusRequest
+	(*StatusResponse)(nil),             // 47: mykvstoreserverpb.StatusResponse
 }
 var file_rpc_proto_depIdxs = []int32{
-	4,  // 0: mykvstoreserverpb.PutResponse.header:type_name -> mykvstoreserverpb.ResponseHeader
-	5,  // 1: mykvstoreserverpb.PutResponse.prev_kv:type_name -> mykvstoreserverpb.KeyValue
-	9,  // 2: mykvstoreserverpb.WatchRequest.create_request:type_name -> mykvstoreserverpb.WatchCreateRequest
-	10, // 3: mykvstoreserverpb.WatchRequest.cancel_request:type_name -> mykvstoreserverpb.WatchCancelRequest
-	11, // 4: mykvstoreserverpb.WatchRequest.progress_request:type_name -> mykvstoreserverpb.WatchProgressRequest
+	6,  // 0: mykvstoreserverpb.PutResponse.header:type_name -> mykvstoreserverpb.ResponseHeader
+	7,  // 1: mykvstoreserverpb.PutResponse.prev_kv:type_name -> mykvstoreserverpb.KeyValue
+	11, // 2: mykvstoreserverpb.WatchRequest.create_request:type_name -> mykvstoreserverpb.WatchCreateRequest
+	12, // 3: mykvstoreserverpb.WatchRequest.cancel_request:type_name -> mykvstoreserverpb.WatchCancelRequest
+	13, // 4: mykvstoreserverpb.WatchRequest.progress_request:type_name -> mykvstoreserverpb.WatchProgressRequest
 	0,  // 5: mykvstoreserverpb.WatchCreateRequest.filters:type_name -> mykvstoreserverpb.WatchCreateRequest.FilterType
-	4,  // 6: mykvstoreserverpb.WatchResponse.header:type_name -> mykvstoreserverpb.ResponseHeader
-	13, // 7: mykvstoreserverpb.WatchResponse.events:type_name -> mykvstoreserverpb.Event
+	6,  // 6: mykvstoreserverpb.WatchResponse.header:type_name -> mykvstoreserverpb.ResponseHeader
+	15, // 7: mykvstoreserverpb.WatchResponse.events:type_name -> mykvstoreserverpb.Event
 	1,  // 8: mykvstoreserverpb.Event.type:type_name -> mykvstoreserverpb.Event.EventType
-	5,  // 9: mykvstoreserverpb.Event.kv:type_name -> mykvstoreserverpb.KeyValue
-	5,  // 10: mykvstoreserverpb.Event.prev_kv:type_name -> mykvstoreserverpb.KeyValue
+	7,  // 9: mykvstoreserverpb.Event.kv:type_name -> mykvstoreserverpb.KeyValue
+	7,  // 10: mykvstoreserverpb.Event.prev_kv:type_name -> mykvstoreserverpb.KeyValue
 	2,  // 11: mykvstoreserverpb.RangeRequest.sort_order:type_name -> mykvstoreserverpb.RangeRequest.SortOrder
 	3,  // 12: mykvstoreserverpb.RangeRequest.sort_target:type_name -> mykvstoreserverpb.RangeRequest.SortTarget
-	4,  // 13: mykvstoreserverpb.RangeResponse.header:type_name -> mykvstoreserverpb.ResponseHeader
-	5,  // 14: mykvstoreserverpb.RangeResponse.kvs:type_name -> mykvstoreserverpb.KeyValue
-	4,  // 15: mykvstoreserverpb.DeleteRangeResponse.header:type_name -> mykvstoreserverpb.ResponseHeader
-	5,  // 16: mykvstoreserverpb.DeleteRangeResponse.prev_kvs:type_name -> mykvstoreserverpb.KeyValue
-	4,  // 17: mykvstoreserverpb.CompactionResponse.header:type_name -> mykvstoreserverpb.ResponseHeader
-	4,  // 18: mykvstoreserverpb.LeaseGrantResponse.header:type_name -> mykvstoreserverpb.ResponseHeader
-	4,  // 19: mykvstoreserverpb.LeaseRevokeResponse.header:type_name -> mykvstoreserverpb.ResponseHeader
-	4,  // 20: mykvstoreserverpb.LeaseKeepAliveResponse.header:type_name -> mykvstoreserverpb.ResponseHeader
-	4,  // 21: mykvstoreserverpb.LeaseTimeToLiveResponse.header:type_name -> mykvstoreserverpb.ResponseHeader
-	14, // 22: mykvstoreserverpb.KV.Range:input_type -> mykvstoreserverpb.RangeRequest
-	6,  // 23: mykvstoreserverpb.KV.Put:input_type -> mykvstoreserverpb.PutRequest
-	16, // 24: mykvstoreserverpb.KV.DeleteRange:input_type -> mykvstoreserverpb.DeleteRangeRequest
-	18, // 25: mykvstoreserverpb.KV.Compact:input_type -> mykvstoreserverpb.CompactionRequest
-	8,  // 26: mykvstoreserverpb.Watch.Watch:input_type -> mykvstoreserverpb.WatchRequest
-	20, // 27: mykvstoreserverpb.Lease.LeaseGrant:input_type -> mykvstoreserverpb.LeaseGrantRequest
-	22, // 28: mykvstoreserverpb.Lease.LeaseRevoke:input_type -> mykvstoreserverpb.LeaseRevokeRequest
-	24, // 29: mykvstoreserverpb.Lease.LeaseKeepAlive:input_type -> mykvstoreserverpb.LeaseKeepAliveRequest
-	26, // 30: mykvstoreserverpb.Lease.LeaseTimeToLive:input_type -> mykvstoreserverpb.LeaseTimeToLiveRequest
-	15, // 31: mykvstoreserverpb.KV.Range:output_type -> mykvstoreserverpb.RangeResponse
-	7,  // 32: mykvstoreserverpb.KV.Put:output_type -> mykvstoreserverpb.PutResponse
-	17, // 33: mykvstoreserverpb.KV.DeleteRange:output_type -> mykvstoreserverpb.DeleteRangeResponse
-	19, // 34: mykvstoreserverpb.KV.Compact:output_type -> mykvstoreserverpb.CompactionResponse
-	12, // 35: mykvstoreserverpb.Watch.Watch:output_type -> mykvstoreserverpb.WatchResponse
-	21, // 36: mykvstoreserverpb.Lease.LeaseGrant:output_type -> mykvstoreserverpb.LeaseGrantResponse
-	23, // 37: mykvstoreserverpb.Lease.LeaseRevoke:output_type -> mykvstoreserverpb.LeaseRevokeResponse
-	25, // 38: mykvstoreserverpb.Lease.LeaseKeepAlive:output_type -> mykvstoreserverpb.LeaseKeepAliveResponse
-	27, // 39: mykvstoreserverpb.Lease.LeaseTimeToLive:output_type -> mykvstoreserverpb.LeaseTimeToLiveResponse
-	31, // [31:40] is the sub-list for method output_type
-	22, // [22:31] is the sub-list for method input_type
-	22, // [22:22] is the sub-list for extension type_name
-	22, // [22:22] is the sub-list for extension extendee
-	0,  // [0:22] is the sub-list for field type_name
+	6,  // 13: mykvstoreserverpb.RangeResponse.header:type_name -> mykvstoreserverpb.ResponseHeader
+	7,  // 14: mykvstoreserverpb.RangeResponse.kvs:type_name -> mykvstoreserverpb.KeyValue
+	6,  // 15: mykvstoreserverpb.DeleteRangeResponse.header:type_name -> mykvstoreserverpb.ResponseHeader
+	7,  // 16: mykvstoreserverpb.DeleteRangeResponse.prev_kvs:type_name -> mykvstoreserverpb.KeyValue
+	6,  // 17: mykvstoreserverpb.CompactionResponse.header:type_name -> mykvstoreserverpb.ResponseHeader
+	6,  // 18: mykvstoreserverpb.LeaseGrantResponse.header:type_name -> mykvstoreserverpb.ResponseHeader
+	6,  // 19: mykvstoreserverpb.LeaseRevokeResponse.header:type_name -> mykvstoreserverpb.ResponseHeader
+	6,  // 20: mykvstoreserverpb.LeaseKeepAliveResponse.header:type_name -> mykvstoreserverpb.ResponseHeader
+	6,  // 21: mykvstoreserverpb.LeaseTimeToLiveResponse.header:type_name -> mykvstoreserverpb.ResponseHeader
+	31, // 22: mykvstoreserverpb.TxnRequest.compare:type_name -> mykvstoreserverpb.Compare
+	32, // 23: mykvstoreserverpb.TxnRequest.success:type_name -> mykvstoreserverpb.RequestOp
+	32, // 24: mykvstoreserverpb.TxnRequest.failure:type_name -> mykvstoreserverpb.RequestOp
+	4,  // 25: mykvstoreserverpb.Compare.result:type_name -> mykvstoreserverpb.Compare.CompareResult
+	5,  // 26: mykvstoreserverpb.Compare.target:type_name -> mykvstoreserverpb.Compare.CompareTarget
+	16, // 27: mykvstoreserverpb.RequestOp.request_range:type_name -> mykvstoreserverpb.RangeRequest
+	8,  // 28: mykvstoreserverpb.RequestOp.request_put:type_name -> mykvstoreserverpb.PutRequest
+	18, // 29: mykvstoreserverpb.RequestOp.request_delete_range:type_name -> mykvstoreserverpb.DeleteRangeRequest
+	30, // 30: mykvstoreserverpb.RequestOp.request_txn:type_name -> mykvstoreserverpb.TxnRequest
+	6,  // 31: mykvstoreserverpb.TxnResponse.header:type_name -> mykvstoreserverpb.ResponseHeader
+	34, // 32: mykvstoreserverpb.TxnResponse.responses:type_name -> mykvstoreserverpb.ResponseOp
+	17, // 33: mykvstoreserverpb.ResponseOp.response_range:type_name -> mykvstoreserverpb.RangeResponse
+	9,  // 34: mykvstoreserverpb.ResponseOp.response_put:type_name -> mykvstoreserverpb.PutResponse
+	19, // 35: mykvstoreserverpb.ResponseOp.response_delete_range:type_name -> mykvstoreserverpb.DeleteRangeResponse
+	33, // 36: mykvstoreserverpb.ResponseOp.response_txn:type_name -> mykvstoreserverpb.TxnResponse
+	6,  // 37: mykvstoreserverpb.MemberAddResponse.header:type_name -> mykvstoreserverpb.ResponseHeader
+	35, // 38: mykvstoreserverpb.MemberAddResponse.member:type_name -> mykvstoreserverpb.Member
+	35, // 39: mykvstoreserverpb.MemberAddResponse.members:type_name -> mykvstoreserverpb.Member
+	6,  // 40: mykvstoreserverpb.MemberRemoveResponse.header:type_name -> mykvstoreserverpb.ResponseHeader
+	35, // 41: mykvstoreserverpb.MemberRemoveResponse.members:type_name -> mykvstoreserverpb.Member
+	6,  // 42: mykvstoreserverpb.MemberUpdateResponse.header:type_name -> mykvstoreserverpb.ResponseHeader
+	35, // 43: mykvstoreserverpb.MemberUpdateResponse.members:type_name -> mykvstoreserverpb.Member
+	6,  // 44: mykvstoreserverpb.MemberListResponse.header:type_name -> mykvstoreserverpb.ResponseHeader
+	35, // 45: mykvstoreserverpb.MemberListResponse.members:type_name -> mykvstoreserverpb.Member
+	6,  // 46: mykvstoreserverpb.MemberPromoteResponse.header:type_name -> mykvstoreserverpb.ResponseHeader
+	35, // 47: mykvstoreserverpb.MemberPromoteResponse.members:type_name -> mykvstoreserverpb.Member
+	6,  // 48: mykvstoreserverpb.StatusResponse.header:type_name -> mykvstoreserverpb.ResponseHeader
+	16, // 49: mykvstoreserverpb.KV.Range:input_type -> mykvstoreserverpb.RangeRequest
+	8,  // 50: mykvstoreserverpb.KV.Put:input_type -> mykvstoreserverpb.PutRequest
+	18, // 51: mykvstoreserverpb.KV.DeleteRange:input_type -> mykvstoreserverpb.DeleteRangeRequest
+	30, // 52: mykvstoreserverpb.KV.Txn:input_type -> mykvstoreserverpb.TxnRequest
+	20, // 53: mykvstoreserverpb.KV.Compact:input_type -> mykvstoreserverpb.CompactionRequest
+	10, // 54: mykvstoreserverpb.Watch.Watch:input_type -> mykvstoreserverpb.WatchRequest
+	22, // 55: mykvstoreserverpb.Lease.LeaseGrant:input_type -> mykvstoreserverpb.LeaseGrantRequest
+	24, // 56: mykvstoreserverpb.Lease.LeaseRevoke:input_type -> mykvstoreserverpb.LeaseRevokeRequest
+	26, // 57: mykvstoreserverpb.Lease.LeaseKeepAlive:input_type -> mykvstoreserverpb.LeaseKeepAliveRequest
+	28, // 58: mykvstoreserverpb.Lease.LeaseTimeToLive:input_type -> mykvstoreserverpb.LeaseTimeToLiveRequest
+	36, // 59: mykvstoreserverpb.Cluster.MemberAdd:input_type -> mykvstoreserverpb.MemberAddRequest
+	38, // 60: mykvstoreserverpb.Cluster.MemberRemove:input_type -> mykvstoreserverpb.MemberRemoveRequest
+	40, // 61: mykvstoreserverpb.Cluster.MemberUpdate:input_type -> mykvstoreserverpb.MemberUpdateRequest
+	42, // 62: mykvstoreserverpb.Cluster.MemberList:input_type -> mykvstoreserverpb.MemberListRequest
+	44, // 63: mykvstoreserverpb.Cluster.MemberPromote:input_type -> mykvstoreserverpb.MemberPromoteRequest
+	46, // 64: mykvstoreserverpb.Maintenance.Status:input_type -> mykvstoreserverpb.StatusRequest
+	17, // 65: mykvstoreserverpb.KV.Range:output_type -> mykvstoreserverpb.RangeResponse
+	9,  // 66: mykvstoreserverpb.KV.Put:output_type -> mykvstoreserverpb.PutResponse
+	19, // 67: mykvstoreserverpb.KV.DeleteRange:output_type -> mykvstoreserverpb.DeleteRangeResponse
+	33, // 68: mykvstoreserverpb.KV.Txn:output_type -> mykvstoreserverpb.TxnResponse
+	21, // 69: mykvstoreserverpb.KV.Compact:output_type -> mykvstoreserverpb.CompactionResponse
+	14, // 70: mykvstoreserverpb.Watch.Watch:output_type -> mykvstoreserverpb.WatchResponse
+	23, // 71: mykvstoreserverpb.Lease.LeaseGrant:output_type -> mykvstoreserverpb.LeaseGrantResponse
+	25, // 72: mykvstoreserverpb.Lease.LeaseRevoke:output_type -> mykvstoreserverpb.LeaseRevokeResponse
+	27, // 73: mykvstoreserverpb.Lease.LeaseKeepAlive:output_type -> mykvstoreserverpb.LeaseKeepAliveResponse
+	29, // 74: mykvstoreserverpb.Lease.LeaseTimeToLive:output_type -> mykvstoreserverpb.LeaseTimeToLiveResponse
+	37, // 75: mykvstoreserverpb.Cluster.MemberAdd:output_type -> mykvstoreserverpb.MemberAddResponse
+	39, // 76: mykvstoreserverpb.Cluster.MemberRemove:output_type -> mykvstoreserverpb.MemberRemoveResponse
+	41, // 77: mykvstoreserverpb.Cluster.MemberUpdate:output_type -> mykvstoreserverpb.MemberUpdateResponse
+	43, // 78: mykvstoreserverpb.Cluster.MemberList:output_type -> mykvstoreserverpb.MemberListResponse
+	45, // 79: mykvstoreserverpb.Cluster.MemberPromote:output_type -> mykvstoreserverpb.MemberPromoteResponse
+	47, // 80: mykvstoreserverpb.Maintenance.Status:output_type -> mykvstoreserverpb.StatusResponse
+	65, // [65:81] is the sub-list for method output_type
+	49, // [49:65] is the sub-list for method input_type
+	49, // [49:49] is the sub-list for extension type_name
+	49, // [49:49] is the sub-list for extension extendee
+	0,  // [0:49] is the sub-list for field type_name
 }
 
 func init() { file_rpc_proto_init() }
@@ -2050,15 +3515,27 @@ func file_rpc_proto_init() {
 		(*WatchRequest_CancelRequest)(nil),
 		(*WatchRequest_ProgressRequest)(nil),
 	}
+	file_rpc_proto_msgTypes[26].OneofWrappers = []any{
+		(*RequestOp_RequestRange)(nil),
+		(*RequestOp_RequestPut)(nil),
+		(*RequestOp_RequestDeleteRange)(nil),
+		(*RequestOp_RequestTxn)(nil),
+	}
+	file_rpc_proto_msgTypes[28].OneofWrappers = []any{
+		(*ResponseOp_ResponseRange)(nil),
+		(*ResponseOp_ResponsePut)(nil),
+		(*ResponseOp_ResponseDeleteRange)(nil),
+		(*ResponseOp_ResponseTxn)(nil),
+	}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_rpc_proto_rawDesc), len(file_rpc_proto_rawDesc)),
-			NumEnums:      4,
-			NumMessages:   24,
+			NumEnums:      6,
+			NumMessages:   42,
 			NumExtensions: 0,
-			NumServices:   3,
+			NumServices:   5,
 		},
 		GoTypes:           file_rpc_proto_goTypes,
 		DependencyIndexes: file_rpc_proto_depIdxs,

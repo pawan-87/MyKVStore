@@ -1,7 +1,10 @@
 package lease
 
 import (
+	"encoding/binary"
+	"encoding/json"
 	"fmt"
+	"mykvstore/pkg/storage"
 	"sync"
 	"sync/atomic"
 	"time"
@@ -10,6 +13,8 @@ import (
 )
 
 type Lessor struct {
+	backend *storage.BoltBackend
+
 	mu     sync.RWMutex
 	leases map[LeaseID]*Lease
 
@@ -23,12 +28,13 @@ type Lessor struct {
 	logger *zap.Logger
 }
 
-func NewLessor(logger *zap.Logger) *Lessor {
+func NewLessor(backend *storage.BoltBackend, logger *zap.Logger) *Lessor {
 	return &Lessor{
-		leases: make(map[LeaseID]*Lease),
-		stopCh: make(chan struct{}),
-		doneCh: make(chan struct{}),
-		logger: logger,
+		backend: backend,
+		leases:  make(map[LeaseID]*Lease),
+		stopCh:  make(chan struct{}),
+		doneCh:  make(chan struct{}),
+		logger:  logger,
 	}
 }
 
@@ -42,8 +48,136 @@ func (ls *Lessor) Stop() {
 	<-ls.doneCh
 }
 
+func (ls *Lessor) saveLease(lease *Lease) error {
+	data, err := json.Marshal(lease)
+	if err != nil {
+		return err
+	}
+
+	leaseKey := make([]byte, 8)
+	binary.BigEndian.PutUint64(leaseKey, uint64(lease.ID))
+
+	return ls.backend.Put([]byte("lease"), leaseKey, data)
+}
+
+func (ls *Lessor) deleteLease(id LeaseID) error {
+	leaseKey := make([]byte, 8)
+	binary.BigEndian.PutUint64(leaseKey, uint64(id))
+
+	return ls.backend.Delete([]byte("lease"), leaseKey)
+}
+
+func (ls *Lessor) Restore() error {
+	ls.mu.Lock()
+	defer ls.mu.Unlock()
+
+	return ls.backend.ForEach([]byte("lease"), func(k, v []byte) error {
+		lease := &Lease{}
+		if err := json.Unmarshal(v, lease); err != nil {
+			return err
+		}
+
+		// Calculate remaining TTL
+		elapsed := time.Since(lease.GrantTime)
+		remaining := time.Duration(lease.TTL)*time.Second - elapsed
+
+		if remaining > 0 {
+			ls.leases[lease.ID] = lease
+
+			ls.logger.Info("Restored lease",
+				zap.Int64("id", int64(lease.ID)),
+				zap.Duration("remaining", remaining),
+			)
+		} else {
+			// Lease already expired, skip restoration
+			ls.logger.Info("Skipped expired lease",
+				zap.Int64("id", int64(lease.ID)),
+			)
+		}
+
+		return nil
+	})
+}
+
 func (ls *Lessor) SetExpiredCallback(callback func(leaseID LeaseID, keys []string)) {
 	ls.expireCallback = callback
+}
+
+// ApplyGrant applies a lease grant (called after Raft commit on ALL nodes)
+func (ls *Lessor) ApplyGrant(id LeaseID, ttl int64) (*Lease, error) {
+	ls.mu.Lock()
+	defer ls.mu.Unlock()
+
+	if existing := ls.leases[id]; existing != nil {
+		return existing, nil
+	}
+
+	lease := NewLease(id, ttl)
+
+	// 1. Store in bbolt
+	if err := ls.saveLease(lease); err != nil {
+		return nil, err
+	}
+
+	// 2. Cache in memor
+	ls.leases[id] = lease
+
+	ls.logger.Info("Lease granted (applied)",
+		zap.Int64("id", int64(id)),
+		zap.Int64("ttl", ttl),
+	)
+
+	return lease, nil
+}
+
+func (ls *Lessor) ApplyRevoke(id LeaseID) ([]string, error) {
+	ls.mu.Lock()
+	defer ls.mu.Unlock()
+
+	lease := ls.leases[id]
+	if lease == nil {
+		return nil, fmt.Errorf("lease not found")
+	}
+
+	keys := lease.Keys()
+
+	if err := ls.deleteLease(id); err != nil {
+		return nil, err
+	}
+
+	delete(ls.leases, id)
+
+	ls.logger.Debug("Lease revoked (applied)",
+		zap.Int64("id", int64(id)),
+		zap.Int("keys", len(keys)),
+	)
+
+	return keys, nil
+}
+
+func (ls *Lessor) ApplyKeepAlive(id LeaseID) (int64, error) {
+	ls.mu.Lock()
+	defer ls.mu.Unlock()
+
+	lease := ls.leases[id]
+	if lease == nil {
+		return 0, fmt.Errorf("lease not found")
+	}
+
+	lease.Refresh()
+
+	if err := ls.saveLease(lease); err != nil {
+		return 0, err
+	}
+
+	ttl := lease.RemainingTTL()
+
+	ls.logger.Debug("Lease kept alive (applied)",
+		zap.Int64("id", int64(id)),
+		zap.Int64("remaining_ttl", ttl),
+	)
+
+	return ttl, nil
 }
 
 func (ls *Lessor) Grant(id LeaseID, ttl int64) (*Lease, error) {

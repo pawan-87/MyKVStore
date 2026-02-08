@@ -108,13 +108,36 @@ func (s *Server) LeaseKeepAlive(stream mykvstoreserverpb.Lease_LeaseKeepAliveSer
 			return err
 		}
 
-		ttl, err := s.lessor.Renew(lease.LeaseID(req.ID))
-		if err != nil {
-			s.logger.Error("Failed to renew lease",
+		reqID := ReqID(s.reqIDGen.Next())
+		ch := s.applyWait.Register(reqID)
+
+		cmd := raftnode.NewLeaseKeepAliveCommand(req.ID, uint64(reqID))
+
+		if err := s.raftNode.Propose(cmd); err != nil {
+			s.applyWait.Cancel(reqID)
+			s.logger.Warn("Failed to propose lease keep-alive",
 				zap.Int64("lease_id", req.ID),
 				zap.Error(err),
 			)
+			// Send TTL=0 so the client knows the keep-alive failed
+			resp := &mykvstoreserverpb.LeaseKeepAliveResponse{
+				Header: s.makeHeader(),
+				ID:     req.ID,
+				TTL:    0,
+			}
+			if err := stream.Send(resp); err != nil {
+				return err
+			}
 			continue
+		}
+
+		result, err := Wait(stream.Context(), ch, 5*time.Second)
+		s.applyWait.Cancel(reqID)
+
+		var ttl int64
+		resultTTL, ok := result.Data.(int64)
+		if ok {
+			ttl = resultTTL
 		}
 
 		resp := &mykvstoreserverpb.LeaseKeepAliveResponse{
@@ -132,8 +155,8 @@ func (s *Server) LeaseKeepAlive(stream mykvstoreserverpb.Lease_LeaseKeepAliveSer
 func (s *Server) LeaseTimeToLive(ctx context.Context, req *mykvstoreserverpb.LeaseTimeToLiveRequest) (*mykvstoreserverpb.LeaseTimeToLiveResponse, error) {
 
 	l := s.lessor.Lookup(lease.LeaseID(req.ID))
-	if l != nil {
-		return nil, fmt.Errorf("lease not found")
+	if l == nil {
+		return nil, fmt.Errorf("lease not found: %d", req.ID)
 	}
 
 	resp := &mykvstoreserverpb.LeaseTimeToLiveResponse{

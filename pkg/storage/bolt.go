@@ -51,9 +51,9 @@ func (b *BoltBackend) Open() error {
 
 func (b *BoltBackend) createDefaultBuckets() error {
 	return b.db.Update(func(tx *bolt.Tx) error {
-		buckets := []string{"key", "meta", "lease", "auth", "members"}
+		buckets := []string{"key", "meta", "lease", "members", "members_removed"}
 		for _, bucket := range buckets {
-			if _, err := tx.CreateBucket([]byte(bucket)); err != nil {
+			if _, err := tx.CreateBucketIfNotExists([]byte(bucket)); err != nil {
 				return fmt.Errorf("failed to create bucket %s: %w", bucket, err)
 			}
 		}
